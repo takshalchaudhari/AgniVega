@@ -1,7 +1,7 @@
 /**
  * Guarded service-worker registration.
- * Never registers in dev, in an iframe, or inside a Lovable preview host, and
- * supports a `?sw=off` kill switch that unregisters an existing worker.
+ * Never registers in dev or in an iframe, and supports a `?sw=off` kill switch
+ * that unregisters an existing worker.
  */
 
 const SW_URL = "/sw.js";
@@ -9,13 +9,7 @@ const SW_URL = "/sw.js";
 function isPreviewHost(hostname: string): boolean {
   return (
     hostname.startsWith("id-preview--") ||
-    hostname.startsWith("preview--") ||
-    hostname === "lovableproject.com" ||
-    hostname.endsWith(".lovableproject.com") ||
-    hostname === "lovableproject-dev.com" ||
-    hostname.endsWith(".lovableproject-dev.com") ||
-    hostname === "beta.lovable.dev" ||
-    hostname.endsWith(".beta.lovable.dev")
+    hostname.startsWith("preview--")
   );
 }
 

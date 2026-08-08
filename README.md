@@ -1,29 +1,43 @@
-# Welcome to your Lovable project
+# Smart Krishi-Yatra AI
 
-This project was built with [Lovable](https://lovable.dev).
+> Built by **Team Agnivega** · Smart Kopargaon Hackathon 2026 (Problem Statement #041)
 
-## Build with Lovable
+A voice-first, fuel-indexed agri-logistics platform designed to empower smallholder farmers across Kopargaon, Rahata, Shirdi, and Nashik.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## 🌟 Key Features
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Voice-First Load Entry**: Multilingual support across 22 languages (including Marathi and Hindi) via Speech API.
+- **Fuel-Indexed Freight Engine**: Real-time freight calculations indexed to local diesel rates (Nashik baseline ₹99.07/L).
+- **Calculate-Then-Confirm Pooling**: Compare solo vs. pooled transport costs before booking.
+- **Spoilage Clock**: Perishable produce transit countdown timer and financial risk metrics.
+- **Triple-Fallback Routing**: OpenRouteService → OSRM → Offline Haversine geometry fallback.
+- **Four Decoupled Portals**: Farmer, Driver Cockpit, Fleet Owner, and Admin Control Tower.
 
-## Development
+## 🚀 Quick Start
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+### Local Development
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+git clone https://github.com/takshalchaudhari/AgniVega.git
+cd AgniVega
+npm install
 npm run dev
 ```
 
-## Built with
+The application will start at `http://localhost:8080`.
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+### Production Build & Tests
+
+```sh
+npm run build
+npx vitest run
+```
+
+## 🛠️ Built With
+
+- **TanStack Start** (React 19 + SSR + Vite)
+- **TypeScript**
+- **Tailwind CSS v4**
+- **Supabase** (PostgreSQL & Authentication)
+- **Leaflet** (Interactive Routing & Live Maps)
+

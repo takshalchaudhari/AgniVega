@@ -20,7 +20,7 @@ export const Route = createFileRoute("/api/public/transcribe")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const key = process.env["LOVABLE_API_KEY"];
+        const key = process.env["AI_GATEWAY_KEY"] || process.env["OPENAI_API_KEY"];
         if (!key) return Response.json({ error: "Voice service unavailable" }, { status: 503 });
 
         let form: FormData;
@@ -40,11 +40,12 @@ export const Route = createFileRoute("/api/public/transcribe")({
 
         const type = (audio.type || "audio/webm").split(";")[0]!;
         const upstream = new FormData();
-        upstream.append("model", "openai/gpt-4o-mini-transcribe");
+        upstream.append("model", "whisper-1");
         upstream.append("file", audio, `recording.${EXT[type] ?? "webm"}`);
         if (/^[a-z]{2}$/.test(language)) upstream.append("language", language);
 
-        const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
+        const endpoint = process.env["AI_TRANSCRIBE_URL"] || "https://api.openai.com/v1/audio/transcriptions";
+        const res = await fetch(endpoint, {
           method: "POST",
           headers: { Authorization: `Bearer ${key}` },
           body: upstream,

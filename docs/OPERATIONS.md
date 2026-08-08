@@ -93,7 +93,7 @@ With no DSN configured, errors still appear on the Diagnostics page.
 - A generated service worker (`/sw.js`, `vite-plugin-pwa`) caches the app shell
   and hashed assets. HTML navigations are **network-first** with a 4s timeout, so
   a cached page appears only when the network is genuinely slow or absent.
-- Never registers in development or in the Lovable preview. Kill switch: append
+- Never registers in development mode. Kill switch: append
   `?sw=off` to unregister.
 - Confirmation-step transactions can be queued offline:
 

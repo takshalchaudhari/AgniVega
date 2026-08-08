@@ -78,9 +78,8 @@ npm run build      # emits the optimised bundle
 npm run start      # serves the production build locally
 ```
 
-To deploy from the Lovable editor: press **Publish** (top right). Frontend
-changes go live when you click **Update**; database and server changes deploy
-immediately.
+Deployment: The build output is a standard TanStack Start server bundle and
+can run on any Node 20+ host, Vercel, Netlify, Cloudflare Workers, or in Docker.
 
 Self-hosting: the build output is a standard TanStack Start server bundle and
 can run on any Node 20 host, Cloudflare Workers, or a container.

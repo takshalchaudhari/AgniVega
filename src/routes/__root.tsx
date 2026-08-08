@@ -11,7 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportRuntimeError } from "../lib/error-reporting";
 import { OfflineTray } from "@/components/agnivega/OfflineTray";
 import { PerfOverlay } from "@/components/agnivega/PerfOverlay";
 import { AdminOnly } from "@/components/agnivega/AdminOnly";
@@ -46,7 +46,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportRuntimeError(error, { boundary: "tanstack_root_error_component" });
     captureError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 

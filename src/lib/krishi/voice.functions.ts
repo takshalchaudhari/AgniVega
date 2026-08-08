@@ -27,7 +27,7 @@ export const interpretVoice = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => schema.parse(input))
   .handler(async ({ data }): Promise<VoiceIntent> => {
     const fallback = localParse(data.transcript, data.crops, data.villages);
-    const key = process.env["LOVABLE_API_KEY"];
+    const key = process.env["AI_GATEWAY_KEY"] || process.env["OPENAI_API_KEY"] || process.env["GEMINI_API_KEY"];
     if (!key) return fallback;
 
     const system = [
@@ -40,11 +40,12 @@ export const interpretVoice = createServerFn({ method: "POST" })
     ].join(" ");
 
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const endpoint = process.env["AI_GATEWAY_URL"] || "https://api.openai.com/v1/chat/completions";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "google/gemini-3.6-flash",
+          model: "gpt-4o-mini",
           messages: [
             { role: "system", content: system },
             { role: "user", content: data.transcript },
