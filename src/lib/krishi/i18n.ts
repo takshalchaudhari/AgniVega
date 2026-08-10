@@ -1,28 +1,46 @@
-/* ------------------------------------------------------------------ *
- * Pan-India language layer.
- * Every scheduled Indian language is selectable; strings fall back to
- * English when a translation is not yet supplied, so the UI never breaks.
- * ------------------------------------------------------------------ */
-
 export type Lang =
-  | "en" | "hi" | "mr" | "bn" | "te" | "ta" | "gu" | "kn" | "ml" | "pa"
-  | "or" | "as" | "ur" | "sa" | "ne" | "sd" | "ks" | "kok" | "mai" | "mni"
-  | "doi" | "brx" | "sat";
+  | "en"
+  | "hi"
+  | "mr"
+  | "bn"
+  | "te"
+  | "ta"
+  | "gu"
+  | "kn"
+  | "ml"
+  | "pa"
+  | "or"
+  | "as"
+  | "ur"
+  | "sa"
+  | "ne"
+  | "sd"
+  | "ks"
+  | "kok"
+  | "mai"
+  | "mni"
+  | "doi"
+  | "brx"
+  | "sat"
+  | "es"
+  | "fr"
+  | "de"
+  | "zh"
+  | "ar"
+  | "ja"
+  | "pt";
 
 export interface LanguageMeta {
   code: Lang;
-  /** Native script name shown in the picker. */
   label: string;
-  /** Latin name so the search box works with an English keyboard. */
   english: string;
-  /** BCP-47 tag for speech recognition + synthesis. */
   speech: string;
 }
 
 export const LANGUAGES: LanguageMeta[] = [
+  { code: "en", label: "English", english: "English", speech: "en-US" },
   { code: "mr", label: "मराठी", english: "Marathi", speech: "mr-IN" },
   { code: "hi", label: "हिन्दी", english: "Hindi", speech: "hi-IN" },
-  { code: "en", label: "English", english: "English", speech: "en-IN" },
   { code: "bn", label: "বাংলা", english: "Bengali", speech: "bn-IN" },
   { code: "te", label: "తెలుగు", english: "Telugu", speech: "te-IN" },
   { code: "ta", label: "தமிழ்", english: "Tamil", speech: "ta-IN" },
@@ -43,12 +61,19 @@ export const LANGUAGES: LanguageMeta[] = [
   { code: "doi", label: "डोगरी", english: "Dogri", speech: "doi-IN" },
   { code: "brx", label: "बड़ो", english: "Bodo", speech: "brx-IN" },
   { code: "sat", label: "ᱥᱟᱱᱛᱟᱲᱤ", english: "Santali", speech: "sat-IN" },
+  { code: "es", label: "Español", english: "Spanish", speech: "es-ES" },
+  { code: "fr", label: "Français", english: "French", speech: "fr-FR" },
+  { code: "de", label: "Deutsch", english: "German", speech: "de-DE" },
+  { code: "zh", label: "中文", english: "Mandarin", speech: "zh-CN" },
+  { code: "ar", label: "العربية", english: "Arabic", speech: "ar-SA" },
+  { code: "ja", label: "日本語", english: "Japanese", speech: "ja-JP" },
+  { code: "pt", label: "Português", english: "Portuguese", speech: "pt-BR" },
 ];
 
-export const RTL_LANGS: Lang[] = ["ur", "sd", "ks"];
+export const RTL_LANGS: Lang[] = ["ur", "sd", "ks", "ar"];
 
 export function speechLocale(lang: Lang): string {
-  return LANGUAGES.find((l) => l.code === lang)?.speech ?? "en-IN";
+  return LANGUAGES.find((l) => l.code === lang)?.speech ?? "en-US";
 }
 
 export function languageName(lang: Lang): string {
@@ -61,64 +86,77 @@ export const STRINGS: Record<string, Entry> = {
   brand: { en: "Team Agnivega", hi: "टीम अग्निवेग", mr: "टीम अग्निवेग" },
   tagline: {
     en: "Smart Krishi-Yatra AI — Agri-Logistics Operating System",
-    hi: "स्मार्ट कृषि-यात्रा AI — कृषि-लॉजिस्टिक्स ऑपरेटिंग सिस्टम",
-    mr: "स्मार्ट कृषी-यात्रा AI — कृषी-लॉजिस्टिक्स ऑपरेटिंग सिस्टम",
-    bn: "স্মার্ট কৃষি-যাত্রা AI — কৃষি-লজিস্টিকস অপারেটিং সিস্টেম",
-    ta: "ஸ்மார்ட் கிருஷி-யாத்ரா AI — வேளாண் தளவாட அமைப்பு",
-    te: "స్మార్ట్ కృషి-యాత్ర AI — వ్యవసాయ లాజిస్టిక్స్ వ్యవస్థ",
   },
   farmerPortal: {
-    en: "Farmer Portal", hi: "किसान पोर्टल", mr: "शेतकरी पोर्टल", bn: "কৃষক পোর্টাল",
-    te: "రైతు పోర్టల్", ta: "விவசாயி போர்டல்", gu: "ખેડૂત પોર્ટલ", kn: "ರೈತ ಪೋರ್ಟಲ್",
-    ml: "കർഷക പോർട്ടൽ", pa: "ਕਿਸਾਨ ਪੋਰਟਲ", or: "କୃଷକ ପୋର୍ଟାଲ", as: "কৃষক প’ৰ্টেল", ur: "کسان پورٹل",
+    en: "Farmer Portal",
+    hi: "किसान पोर्टल",
+    mr: "शेतकरी पोर्टल",
+    es: "Portal del Agricultor",
+    fr: "Portail Paysan",
+    zh: "农民门户",
+    ar: "بوابة المزارع",
   },
   crop: {
-    en: "Crop", hi: "फसल", mr: "पीक", bn: "ফসল", te: "పంట", ta: "பயிர்", gu: "પાક",
-    kn: "ಬೆಳೆ", ml: "വിള", pa: "ਫ਼ਸਲ", or: "ଫସଲ", as: "শস্য", ur: "فصل",
+    en: "Crop",
+    hi: "फसल",
+    mr: "पीक",
+    es: "Cosecha",
+    fr: "Culture",
+    zh: "作物",
+    ar: "محصول",
   },
   weight: {
-    en: "Weight", hi: "वज़न", mr: "वजन", bn: "ওজন", te: "బరువు", ta: "எடை", gu: "વજન",
-    kn: "ತೂಕ", ml: "ഭാരം", pa: "ਭਾਰ", or: "ଓଜନ", as: "ওজন", ur: "وزن",
+    en: "Weight",
+    hi: "वज़न",
+    mr: "वजन",
+    es: "Peso",
+    fr: "Poids",
+    zh: "重量",
+    ar: "وزن",
   },
   village: {
-    en: "Village", hi: "गाँव", mr: "गाव", bn: "গ্রাম", te: "గ్రామం", ta: "கிராமம்", gu: "ગામ",
-    kn: "ಗ್ರಾಮ", ml: "ഗ്രാമം", pa: "ਪਿੰਡ", or: "ଗାଁ", as: "গাঁও", ur: "گاؤں",
+    en: "Village",
+    hi: "गाँव",
+    mr: "गाव",
+    es: "Pueblo",
+    fr: "Village",
+    zh: "村庄",
+    ar: "قرية",
   },
   calculate: {
-    en: "Calculate mandi net profit", hi: "मंडी शुद्ध लाभ की गणना करें", mr: "मंडी निव्वळ नफा मोजा",
-    bn: "মান্ডি নিট লাভ হিসাব করুন", te: "మండి నికర లాభం లెక్కించండి", ta: "மண்டி நிகர லாபத்தைக் கணக்கிடு",
-    gu: "મંડી ચોખ્ખો નફો ગણો", kn: "ಮಂಡಿ ನಿವ್ವಳ ಲಾಭ ಲೆಕ್ಕಹಾಕಿ", ml: "മണ്ടി അറ്റാദായം കണക്കാക്കുക",
-    pa: "ਮੰਡੀ ਸ਼ੁੱਧ ਲਾਭ ਗਿਣੋ", ur: "منڈی خالص منافع کا حساب لگائیں",
+    en: "Calculate mandi net profit",
+    hi: "मंडी शुद्ध लाभ की गणना करें",
+    mr: "मंडी निव्वळ नफा मोजा",
   },
   pooled: {
-    en: "Pooled transport", hi: "साझा ट्रक", mr: "सामायिक ट्रक", bn: "যৌথ পরিবহন", te: "ఉమ్మడి రవాణా",
-    ta: "பகிர்வு போக்குவரத்து", gu: "સહિયારું વાહન", kn: "ಹಂಚಿಕೆ ಸಾರಿಗೆ", ml: "പങ്കിട്ട ഗതാഗതം",
-    pa: "ਸਾਂਝਾ ਟਰੱਕ", ur: "مشترکہ ٹرک",
+    en: "Pooled transport",
+    hi: "साझा ट्रक",
+    mr: "सामायिक ट्रक",
+    es: "Transporte Compartido",
   },
   solo: {
-    en: "Individual solo truck", hi: "अलग ट्रक", mr: "स्वतंत्र ट्रक", bn: "একক ট্রাক", te: "సొంత ట్రక్",
-    ta: "தனி லாரி", gu: "એકલું વાહન", kn: "ಪ್ರತ್ಯೇಕ ಟ್ರಕ್", ml: "ഒറ്റ ട്രക്ക്", pa: "ਵੱਖਰਾ ਟਰੱਕ", ur: "الگ ٹرک",
+    en: "Individual solo truck",
+    hi: "अलग ट्रक",
+    mr: "स्वतंत्र ट्रक",
+    es: "Camión Individual",
   },
   confirmPooled: {
-    en: "Confirm & join pooled truck", hi: "साझा ट्रक कन्फ़र्म करें", mr: "सामायिक ट्रक निश्चित करा",
-    bn: "যৌথ ট্রাক নিশ্চিত করুন", te: "ఉమ్మడి ట్రక్ ఖరారు చేయండి", ta: "பகிர்வு லாரியை உறுதிசெய்",
-    gu: "સહિયારું વાહન કન્ફર્મ કરો", kn: "ಹಂಚಿಕೆ ಟ್ರಕ್ ದೃಢೀಕರಿಸಿ", pa: "ਸਾਂਝਾ ਟਰੱਕ ਪੱਕਾ ਕਰੋ",
+    en: "Confirm & join pooled truck",
   },
   confirmSolo: {
-    en: "Confirm solo truck", hi: "अलग ट्रक कन्फ़र्म करें", mr: "स्वतंत्र ट्रक निश्चित करा",
-    bn: "একক ট্রাক নিশ্চিত করুন", te: "సొంత ట్రక్ ఖరారు చేయండి", ta: "தனி லாரியை உறுதிசெய்",
-    gu: "એકલું વાહન કન્ફર્મ કરો", kn: "ಪ್ರತ್ಯೇಕ ಟ್ರಕ್ ದೃಢೀಕರಿಸಿ", pa: "ਵੱਖਰਾ ਟਰੱਕ ਪੱਕਾ ਕਰੋ",
+    en: "Confirm solo truck",
   },
   netCash: {
-    en: "Net cash", hi: "शुद्ध राशि", mr: "निव्वळ रक्कम", bn: "নিট টাকা", te: "నికర నగదు",
-    ta: "நிகர தொகை", gu: "ચોખ્ખી રકમ", kn: "ನಿವ್ವಳ ಮೊತ್ತ", ml: "അറ്റ തുക", pa: "ਸ਼ੁੱਧ ਰਕਮ", ur: "خالص رقم",
+    en: "Net cash",
+    hi: "शुद्ध राशि",
+    mr: "निव्वळ रक्कम",
   },
-  savings: { en: "Saved", hi: "बचत", mr: "बचत", bn: "সাশ্রয়", te: "ఆదా", ta: "சேமிப்பு", gu: "બચત", kn: "ಉಳಿತಾಯ", pa: "ਬੱਚਤ" },
-  speak: { en: "Speak", hi: "बोलें", mr: "बोला", bn: "বলুন", te: "మాట్లాడండి", ta: "பேசு", gu: "બોલો", kn: "ಮಾತನಾಡಿ", ml: "സംസാരിക്കുക", pa: "ਬੋਲੋ", ur: "بولیں" },
-  listening: { en: "Listening…", hi: "सुन रहे हैं…", mr: "ऐकत आहे…", bn: "শুনছি…", te: "వింటున్నాం…", ta: "கேட்கிறது…", gu: "સાંભળી રહ્યા છીએ…", kn: "ಕೇಳುತ್ತಿದೆ…", pa: "ਸੁਣ ਰਹੇ ਹਾਂ…" },
-  spoilage: { en: "Spoilage clock", hi: "खराब होने का समय", mr: "खराब होण्याची वेळ", bn: "নষ্ট হওয়ার সময়", te: "పాడయ్యే సమయం", ta: "கெடும் நேரம்" },
-  myShipments: { en: "My shipments", hi: "मेरी शिपमेंट", mr: "माझ्या पाठवण्या", bn: "আমার চালান", te: "నా షిప్‌మెంట్లు", ta: "என் அனுப்புகைகள்" },
-  offlineQueued: { en: "Queued offline", hi: "ऑफ़लाइन क़तार में", mr: "ऑफलाइन रांगेत ठेवले", bn: "অফলাইনে সারিবদ্ধ" },
+  savings: { en: "Saved", hi: "बचत", mr: "बचत" },
+  speak: { en: "Speak", hi: "बोलें", mr: "बोला" },
+  listening: { en: "Listening…", hi: "सुन रहे हैं…", mr: "ऐकत आहे…" },
+  spoilage: { en: "Spoilage clock", hi: "खराब होने का समय", mr: "खराब होण्याची वेळ" },
+  myShipments: { en: "My shipments", hi: "मेरी शिपमेंट", mr: "माझ्या पाठवण्या" },
+  offlineQueued: { en: "Queued offline", hi: "ऑफ़लाइन क़तार में", mr: "ऑफलाइन रांगेत ठेवले" },
   searchLanguage: { en: "Search language…", hi: "भाषा खोजें…", mr: "भाषा शोधा…" },
 };
 
@@ -133,11 +171,11 @@ export function cropName(
   lang: Lang,
 ): string {
   if (lang === "mr") return crop.name_mr;
-  if (lang === "hi" || lang === "mai" || lang === "doi" || lang === "brx" || lang === "sa") return crop.name_hi;
+  if (lang === "hi" || lang === "mai" || lang === "doi" || lang === "brx" || lang === "sa")
+    return crop.name_hi;
   return crop.name_en;
 }
 
-/** Dialect confirmation sentence spoken back after a calculation. */
 export function spokenConfirmation(
   weightKg: number,
   crop: { name_en: string; name_mr: string; name_hi: string },
@@ -145,10 +183,12 @@ export function spokenConfirmation(
 ): string {
   if (lang === "mr") return `तुमचा ${weightKg} किलो ${crop.name_mr} गणनेत जोडला आहे.`;
   if (lang === "hi") return `आपका ${weightKg} किलो ${crop.name_hi} गणना में जोड़ दिया गया है।`;
+  if (lang === "es") return `Se han agregado ${weightKg} kg de ${crop.name_en} al cálculo.`;
+  if (lang === "fr") return `Vos ${weightKg} kg de ${crop.name_en} ont été ajoutés au calcul.`;
+  if (lang === "zh") return `您的 ${weightKg} 公斤 ${crop.name_en} 已添加到计算中。`;
   return `Your ${weightKg} kg of ${crop.name_en} has been added to the calculation.`;
 }
 
-/** Region tags so the language picker can be browsed across all of India. */
 export const LANGUAGE_REGION: Record<Lang, string> = {
   en: "Pan-India",
   hi: "North & Central",
@@ -173,6 +213,13 @@ export const LANGUAGE_REGION: Record<Lang, string> = {
   doi: "Himalayan",
   brx: "North-East",
   sat: "East",
+  es: "Global",
+  fr: "Global",
+  de: "Global",
+  zh: "Global",
+  ar: "Global",
+  ja: "Global",
+  pt: "Global",
 };
 
 export const REGIONS = [
@@ -184,4 +231,5 @@ export const REGIONS = [
   "East",
   "North-East",
   "Himalayan",
+  "Global",
 ] as const;

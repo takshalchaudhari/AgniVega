@@ -1,46 +1,69 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-export const getMyFleet = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data: company } = await supabase
-      .from("fleet_companies")
-      .select("*")
-      .eq("owner_id", userId)
-      .maybeSingle();
-    if (!company) return { company: null, vehicles: [], drivers: [], trips: [], payouts: [] };
+import { DEMO_WINNER, DEMO_POOL_PARTNERS } from "./canonical-demo";
 
-    const [vehicles, drivers, trips, payouts] = await Promise.all([
-      supabase.from("vehicles").select("*, vehicle_types(*)").eq("company_id", company.id),
-      supabase.from("drivers").select("*").eq("company_id", company.id),
-      supabase
-        .from("trips")
-        .select("*, mandis(name)")
-        .eq("company_id", company.id)
-        .order("created_at", { ascending: false })
-        .limit(50),
-      supabase
-        .from("payouts")
-        .select("*")
-        .eq("company_id", company.id)
-        .order("created_at", { ascending: false })
-        .limit(50),
-    ]);
-    return {
-      company,
-      vehicles: vehicles.data ?? [],
-      drivers: drivers.data ?? [],
-      trips: trips.data ?? [],
-      payouts: payouts.data ?? [],
-    };
-  });
+export const getMyFleet = createServerFn({ method: "GET" }).handler(async () => {
+  return {
+    company: { id: "mock-company-1", name: "Mock Fleet Operator" },
+    vehicles: [
+      {
+        id: "veh-1",
+        registration: "MH-15-DC-9876",
+        vehicle_types: { name: "Tata 407" },
+        status: "available",
+        odometer_km: 45000,
+        axle_health: "good",
+      },
+      {
+        id: "veh-2",
+        registration: "MH-15-XY-1234",
+        vehicle_types: { name: "Bolero Pik-Up" },
+        status: "in_transit",
+        odometer_km: 112000,
+        axle_health: "watch",
+      },
+    ] as any[],
+    drivers: [
+      {
+        id: "drv-1",
+        full_name: "Suresh Patil",
+        phone: "+91 9876543210",
+        kyc_status: "approved",
+      },
+      {
+        id: "drv-2",
+        full_name: "Ramesh Pawar",
+        phone: "+91 8765432109",
+        kyc_status: "approved",
+      },
+    ],
+    trips: [
+      {
+        id: "trip-1",
+        status: "ACTIVE",
+        total_distance_km: DEMO_WINNER.distanceKm,
+        total_weight_kg: 1000 + DEMO_POOL_PARTNERS.reduce((a, p) => a + p.weightKg, 0),
+        gross_freight: DEMO_WINNER.freightCost * 1.5, // Total truck freight
+        driver: { full_name: "Suresh Patil" },
+        vehicle: { registration: "MH-15-XY-1234" },
+      },
+    ],
+    payouts: [
+      {
+        id: "pay-1",
+        amount_inr: Math.round(DEMO_WINNER.freightCost * 1.5), // Total truck freight
+        commission: Math.round(DEMO_WINNER.freightCost * 1.5 * 0.05), // 5% fleet commission
+        net_amount: Math.round(DEMO_WINNER.freightCost * 1.5 * 0.95),
+        status: "PAID",
+        created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+      },
+    ] as any[],
+  };
+});
 
 export const registerFleet = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         name: z.string().min(2).max(120),
@@ -51,23 +74,16 @@ export const registerFleet = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data, context }) => {
-    const { data: created, error } = await context.supabase
-      .from("fleet_companies")
-      .insert({ ...data, owner_id: context.userId })
-      .select("*")
-      .single();
-    if (error) throw new Error(error.message);
-    return created;
+  .handler(async ({ data }) => {
+    return { id: "mock-company-1", ...data };
   });
 
 export const addVehicle = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
-        companyId: z.string().uuid().nullable().default(null),
-        vehicleTypeId: z.string().uuid(),
+        companyId: z.string().uuid().or(z.string()).nullable().default(null),
+        vehicleTypeId: z.string().uuid().or(z.string()),
         registration: z.string().min(4).max(20),
         odometerKm: z.number().min(0),
         observedKmpl: z.number().min(1).max(60),
@@ -75,48 +91,21 @@ export const addVehicle = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data, context }) => {
-    const { data: created, error } = await context.supabase
-      .from("vehicles")
-      .insert({
-        owner_id: context.userId,
-        company_id: data.companyId,
-        vehicle_type_id: data.vehicleTypeId,
-        registration: data.registration.toUpperCase(),
-        odometer_km: data.odometerKm,
-        observed_kmpl: data.observedKmpl,
-        axle_health: data.axleHealth,
-        active: true,
-      })
-      .select("*")
-      .single();
-    if (error) throw new Error(error.message);
-    return created;
+  .handler(async ({ data }) => {
+    return { id: "mock-vehicle-1", ...data };
   });
 
 export const logMaintenance = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
-        vehicleId: z.string().uuid(),
+        vehicleId: z.string().uuid().or(z.string()),
         note: z.string().min(2).max(400),
         odometerKm: z.number().min(0),
         cost: z.number().min(0),
       })
       .parse(input),
   )
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("maintenance_logs").insert({
-      vehicle_id: data.vehicleId,
-      note: data.note,
-      odometer_km: data.odometerKm,
-      cost: data.cost,
-    });
-    if (error) throw new Error(error.message);
-    await context.supabase
-      .from("vehicles")
-      .update({ last_service_at: new Date().toISOString(), odometer_km: data.odometerKm })
-      .eq("id", data.vehicleId);
+  .handler(async () => {
     return { ok: true };
   });

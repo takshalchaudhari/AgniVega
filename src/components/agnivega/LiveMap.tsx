@@ -55,7 +55,9 @@ export function LiveMap({
 
   return (
     <Suspense
-      fallback={<div className="animate-pulse rounded-lg border bg-secondary/50" style={{ height }} />}
+      fallback={
+        <div className="animate-pulse rounded-lg border bg-secondary/50" style={{ height }} />
+      }
     >
       <div ref={holder} className="overflow-hidden rounded-lg border">
         <Canvas points={points} route={route} height={height} />

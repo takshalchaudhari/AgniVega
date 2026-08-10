@@ -44,16 +44,16 @@ export function downloadShiftCsv(rows: ShiftLogRow[] = shiftLog()): void {
 }
 
 function escapeHtml(value: unknown): string {
-  return String(value ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
+  return String(value ?? "").replace(
+    /[&<>]/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!,
+  );
 }
 
 export function shiftLogHtml(rows: ShiftLogRow[] = shiftLog()): string {
   const head = HEADERS.map(([, label]) => `<th>${escapeHtml(label)}</th>`).join("");
   const body = rows
-    .map(
-      (row) =>
-        `<tr>${HEADERS.map(([key]) => `<td>${escapeHtml(row[key])}</td>`).join("")}</tr>`,
-    )
+    .map((row) => `<tr>${HEADERS.map(([key]) => `<td>${escapeHtml(row[key])}</td>`).join("")}</tr>`)
     .join("");
   return `<!doctype html><html><head><meta charset="utf-8" />
 <title>Agnivega shift assignment log</title>

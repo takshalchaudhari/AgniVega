@@ -75,6 +75,7 @@ export interface MandiOption {
   pooled: {
     freightShare: number;
     platformFee: number;
+    spoilageLoss: number;
     netPayout: number;
     vehicle: string;
     poolPartners: number;
@@ -84,6 +85,7 @@ export interface MandiOption {
   solo: {
     freightCost: number;
     platformFee: number;
+    spoilageLoss: number;
     netPayout: number;
     vehicle: string;
     utilisationPercent: number;

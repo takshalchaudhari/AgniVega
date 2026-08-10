@@ -12,7 +12,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { rupees } from "@/lib/krishi/constants";
-import { addVehicle, getMyFleet, logMaintenance, registerFleet } from "@/lib/krishi/fleet.functions";
+import {
+  addVehicle,
+  getMyFleet,
+  logMaintenance,
+  registerFleet,
+} from "@/lib/krishi/fleet.functions";
 import { getReferenceData } from "@/lib/krishi/krishi.functions";
 
 export const Route = createFileRoute("/_authenticated/fleet")({
@@ -21,10 +26,14 @@ export const Route = createFileRoute("/_authenticated/fleet")({
       { title: "Fleet Console — Smart Krishi-Yatra AI" },
       {
         name: "description",
-        content: "Register your transport company, manage vehicles, maintenance and driver payouts.",
+        content:
+          "Register your transport company, manage vehicles, maintenance and driver payouts.",
       },
       { property: "og:title", content: "Fleet Console — Smart Krishi-Yatra AI" },
-      { property: "og:description", content: "Vehicles, drivers, trips and payouts in one operator console." },
+      {
+        property: "og:description",
+        content: "Vehicles, drivers, trips and payouts in one operator console.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -86,7 +95,12 @@ function FleetPortal() {
   const service = useMutation({
     mutationFn: (vehicleId: string) =>
       maintenanceFn({
-        data: { vehicleId, note: "Routine service logged from fleet console", odometerKm: 0, cost: 0 },
+        data: {
+          vehicleId,
+          note: "Routine service logged from fleet console",
+          odometerKm: 0,
+          cost: 0,
+        },
       }),
     onSuccess: () => {
       toast.success("Maintenance logged");
@@ -123,12 +137,18 @@ function FleetPortal() {
             <CardContent className="space-y-3">
               <div>
                 <Label>Company name</Label>
-                <Input value={company.name} onChange={(e) => setCompany({ ...company, name: e.target.value })} />
+                <Input
+                  value={company.name}
+                  onChange={(e) => setCompany({ ...company, name: e.target.value })}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>GSTIN / Tax ID</Label>
-                  <Input value={company.tax_id} onChange={(e) => setCompany({ ...company, tax_id: e.target.value })} />
+                  <Input
+                    value={company.tax_id}
+                    onChange={(e) => setCompany({ ...company, tax_id: e.target.value })}
+                  />
                 </div>
                 <div>
                   <Label>Contact phone</Label>
@@ -138,7 +158,11 @@ function FleetPortal() {
                   />
                 </div>
               </div>
-              <Button className="w-full" onClick={() => register.mutate()} disabled={register.isPending}>
+              <Button
+                className="w-full"
+                onClick={() => register.mutate()}
+                disabled={register.isPending}
+              >
                 Register fleet
               </Button>
             </CardContent>
@@ -192,7 +216,10 @@ function FleetPortal() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {fleet.data.vehicles.map((v: any) => (
-                  <div key={v.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3">
+                  <div
+                    key={v.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                  >
                     <span className="font-mono font-semibold">{v.registration}</span>
                     <span className="text-sm text-muted-foreground">
                       {v.vehicle_types?.name} · {Number(v.observed_kmpl)} km/l observed
@@ -217,9 +244,14 @@ function FleetPortal() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {fleet.data.payouts.map((p: any) => (
-                  <div key={p.id} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between rounded-md border p-3 text-sm"
+                  >
                     <span>{new Date(p.created_at).toLocaleDateString("en-IN")}</span>
-                    <span className="text-muted-foreground">commission {rupees(Number(p.commission))}</span>
+                    <span className="text-muted-foreground">
+                      commission {rupees(Number(p.commission))}
+                    </span>
                     <strong className="text-primary">{rupees(Number(p.net_amount))}</strong>
                   </div>
                 ))}

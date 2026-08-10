@@ -1,7 +1,6 @@
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
-import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
 // Profiling: time every server request/function and record slow ones. Also the
 // single funnel for server-side error monitoring.
@@ -10,7 +9,13 @@ const profilingMiddleware = createMiddleware().server(async ({ next }) => {
   const started = Date.now();
   try {
     const result = await next();
-    recordEvent({ kind: "route", name: "server-request", durationMs: Date.now() - started, ok: true, source: "server" });
+    recordEvent({
+      kind: "route",
+      name: "server-request",
+      durationMs: Date.now() - started,
+      ok: true,
+      source: "server",
+    });
     return result;
   } catch (error) {
     recordEvent({
@@ -55,6 +60,6 @@ const csrfMiddleware = createCsrfMiddleware({
 });
 
 export const startInstance = createStart(() => ({
-  functionMiddleware: [attachSupabaseAuth],
+  functionMiddleware: [],
   requestMiddleware: [errorMiddleware, profilingMiddleware, csrfMiddleware],
 }));

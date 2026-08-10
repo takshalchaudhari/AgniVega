@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DemoControlPanel } from "@/components/agnivega/DemoControlPanel";
+import { LiveMap, type MapPoint } from "@/components/agnivega/LiveMap";
 import { rupees } from "@/lib/krishi/constants";
 import {
   getAdminOverview,
@@ -27,10 +28,14 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { title: "Admin Control Tower — Smart Krishi-Yatra AI" },
       {
         name: "description",
-        content: "Approve driver KYC, tune commission and diesel indexing, and audit every platform action.",
+        content:
+          "Approve driver KYC, tune commission and diesel indexing, and audit every platform action.",
       },
       { property: "og:title", content: "Admin Control Tower — Smart Krishi-Yatra AI" },
-      { property: "og:description", content: "Governance, KYC review, pricing overrides and audit trail." },
+      {
+        property: "og:description",
+        content: "Governance, KYC review, pricing overrides and audit trail.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -131,6 +136,7 @@ function AdminPortal() {
           <TabsList>
             <TabsTrigger value="kyc">KYC queue</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
+            <TabsTrigger value="livemap">Live routing map</TabsTrigger>
             <TabsTrigger value="resilience">Router health</TabsTrigger>
             <TabsTrigger value="demo">Demo control</TabsTrigger>
             <TabsTrigger value="audit">Audit log</TabsTrigger>
@@ -138,13 +144,19 @@ function AdminPortal() {
 
           <TabsContent value="kyc" className="mt-4 space-y-2">
             {(data?.kyc ?? []).map((row: any) => (
-              <div key={row.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-card p-3">
+              <div
+                key={row.id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-card p-3"
+              >
                 <span className="text-sm">
                   {row.drivers?.full_name ?? "Driver"} · {row.doc_type}
                 </span>
                 <Badge variant="secondary">{row.status}</Badge>
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => decide.mutate({ driverId: row.driver_id, decision: "approved" })}>
+                  <Button
+                    size="sm"
+                    onClick={() => decide.mutate({ driverId: row.driver_id, decision: "approved" })}
+                  >
                     Approve
                   </Button>
                   <Button
@@ -200,7 +212,11 @@ function AdminPortal() {
                     onChange={(e) => setConfig({ ...config, petrolPrice: Number(e.target.value) })}
                   />
                 </div>
-                <Button className="md:col-span-3" onClick={() => saveConfig.mutate()} disabled={saveConfig.isPending}>
+                <Button
+                  className="md:col-span-3"
+                  onClick={() => saveConfig.mutate()}
+                  disabled={saveConfig.isPending}
+                >
                   Save economics
                 </Button>
               </CardContent>
@@ -212,7 +228,10 @@ function AdminPortal() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {(data?.prices ?? []).slice(0, 25).map((row: any) => (
-                  <div key={row.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2 text-sm">
+                  <div
+                    key={row.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2 text-sm"
+                  >
                     <span>
                       {row.mandis?.name} · {row.crops?.name_en}
                     </span>
@@ -236,13 +255,81 @@ function AdminPortal() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="livemap" className="mt-4 space-y-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Real-time CVRP Execution (Kopargaon)</CardTitle>
+                <CardDescription>
+                  Live visualization of Capacitated Vehicle Routing Problem optimizing expected net
+                  realization.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <AnimatedLiveMap />
+                <div className="flex gap-4 text-sm text-muted-foreground justify-center">
+                  <div className="flex items-center gap-1">
+                    <span className="h-3 w-3 rounded-full bg-[#1B4332]"></span> Primary Pickup
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-3 w-3 rounded-full bg-[#2D6A4F]"></span> Pooled Partners
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-3 w-3 rounded-full bg-[#E9C46A]"></span> Mandi
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-3 w-3 rounded-full bg-[#B23A48]"></span> Driver
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  Trip Delay Simulator (Live Sync)
+                </CardTitle>
+                <CardDescription>
+                  Inject a delay into a live transit to test the deterministic recalculation engine.
+                  This immediately updates the Farmer Portal UI with the closed-loop recommendation.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      localStorage.setItem("agnivega:simulated_delay", "180");
+                      window.dispatchEvent(new CustomEvent("agnivega:delay"));
+                      toast.success("Triggered +3h delay. Check Farmer UI.");
+                    }}
+                  >
+                    Simulate +3h Traffic Delay
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      localStorage.removeItem("agnivega:simulated_delay");
+                      window.dispatchEvent(new CustomEvent("agnivega:delay"));
+                      toast.message("Delay cleared.");
+                    }}
+                  >
+                    Clear Delay
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="resilience" className="mt-4 space-y-2">
             <p className="text-sm text-muted-foreground">
               Every routing call records which tier answered: OpenRouteService, OSRM, or the offline
               Haversine fallback.
             </p>
             {(data?.fallback ?? []).map((row: any) => (
-              <div key={row.id} className="flex items-center justify-between rounded-md border bg-card p-3 text-sm">
+              <div
+                key={row.id}
+                className="flex items-center justify-between rounded-md border bg-card p-3 text-sm"
+              >
                 <Badge variant="outline">{row.tier}</Badge>
                 <span>{row.outcome}</span>
                 <span className="text-muted-foreground">{row.latency_ms} ms</span>
@@ -279,5 +366,63 @@ function Stat({ label, value }: { label: string; value: string }) {
         <p className="mt-1 text-2xl font-bold text-primary">{value}</p>
       </CardContent>
     </Card>
+  );
+}
+
+function AnimatedLiveMap() {
+  const routePoints = [
+    { lat: 19.878, lng: 74.46 }, // driver start
+    { lat: 19.892, lng: 74.475 }, // Farm A
+    { lat: 19.871, lng: 74.492 }, // Farm B
+    { lat: 19.865, lng: 74.481 }, // Farm C
+    { lat: 19.8833, lng: 74.4833 }, // Mandi
+  ];
+
+  const [driverPos, setDriverPos] = useState(routePoints[0]);
+
+  useEffect(() => {
+    const startTime = Date.now();
+    const duration = 15000; // 15 seconds per trip loop
+
+    const interval = setInterval(() => {
+      const elapsed = (Date.now() - startTime) % duration;
+      const progress = elapsed / duration;
+
+      const totalSegments = routePoints.length - 1;
+      const segmentProgress = progress * totalSegments;
+      const segmentIndex = Math.floor(segmentProgress);
+      const segmentT = segmentProgress - segmentIndex;
+
+      const p1 = routePoints[segmentIndex];
+      const p2 = routePoints[Math.min(segmentIndex + 1, totalSegments)];
+
+      if (p1 && p2) {
+        setDriverPos({
+          lat: p1.lat + (p2.lat - p1.lat) * segmentT,
+          lng: p1.lng + (p2.lng - p1.lng) * segmentT,
+        });
+      }
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <LiveMap
+      height={500}
+      points={[
+        { kind: "mandi", lat: 19.8833, lng: 74.4833, label: "Kopargaon APMC (Mandi)" },
+        { kind: "pickup", lat: 19.892, lng: 74.475, label: "Farm A (Onion)" },
+        { kind: "partner", lat: 19.871, lng: 74.492, label: "Farm B (Onion, Pooled)" },
+        { kind: "partner", lat: 19.865, lng: 74.481, label: "Farm C (Onion, Pooled)" },
+        {
+          kind: "driver",
+          lat: driverPos?.lat ?? 19.878,
+          lng: driverPos?.lng ?? 74.46,
+          label: "Driver MH15 (In Transit)",
+        },
+      ]}
+      route={routePoints}
+    />
   );
 }

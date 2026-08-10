@@ -1,7 +1,15 @@
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  Polyline,
+  Popup,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 
 import { clusterPoints, decimate, simplifyPath } from "@/lib/map/optimize";
 
@@ -67,10 +75,11 @@ function FitBounds({ points }: { points: MapPoint[] }) {
   useEffect(() => {
     if (!signature) return;
     const [s, w, n, e] = signature.split(",").map(Number) as [number, number, number, number];
-    map.fitBounds(
-      L.latLngBounds([s, w], [n, e]),
-      { padding: [32, 32], maxZoom: 13, animate: false },
-    );
+    map.fitBounds(L.latLngBounds([s, w], [n, e]), {
+      padding: [32, 32],
+      maxZoom: 13,
+      animate: false,
+    });
     // Leaflet mis-measures inside cards that animate in; nudge it once mounted.
     const id = setTimeout(() => map.invalidateSize(), 220);
     return () => clearTimeout(id);
@@ -95,9 +104,7 @@ export default function LiveMapCanvas({
   height?: number | undefined;
 }) {
   const [zoom, setZoom] = useState(11);
-  const center: [number, number] = points[0]
-    ? [points[0].lat, points[0].lng]
-    : [19.8833, 74.4778];
+  const center: [number, number] = points[0] ? [points[0].lat, points[0].lng] : [19.8833, 74.4778];
 
   // Douglas–Peucker + hard vertex cap keeps long simulation trails cheap.
   const line = useMemo(() => {
@@ -140,10 +147,7 @@ export default function LiveMapCanvas({
         detectRetina={false}
       />
       {line && (
-        <Polyline
-          positions={line}
-          pathOptions={{ color: "#2D6A4F", weight: 4, opacity: 0.85 }}
-        />
+        <Polyline positions={line} pathOptions={{ color: "#2D6A4F", weight: 4, opacity: 0.85 }} />
       )}
       {clusters.map((cluster) => {
         const first = cluster.items[0]!;

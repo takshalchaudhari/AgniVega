@@ -105,20 +105,30 @@ export function record(
   emit();
 
   if (options.alwaysSend || isPerfMode()) {
-    pending.push({ ...sample, url: typeof window !== "undefined" ? window.location.pathname : undefined });
+    pending.push({
+      ...sample,
+      url: typeof window !== "undefined" ? window.location.pathname : undefined,
+    });
     scheduleFlush();
   }
 }
 
 /** Times an async client operation (server-fn call, fetch, mutation). */
-export async function measure<T>(kind: TelemetryKind, name: string, fn: () => Promise<T>): Promise<T> {
+export async function measure<T>(
+  kind: TelemetryKind,
+  name: string,
+  fn: () => Promise<T>,
+): Promise<T> {
   const started = performance.now();
   try {
     const result = await fn();
     record(kind, name, performance.now() - started);
     return result;
   } catch (error) {
-    record(kind, name, performance.now() - started, { ok: false, detail: (error as Error).message });
+    record(kind, name, performance.now() - started, {
+      ok: false,
+      detail: (error as Error).message,
+    });
     throw error;
   }
 }

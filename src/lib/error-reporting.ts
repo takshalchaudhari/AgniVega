@@ -9,4 +9,3 @@ export function reportRuntimeError(error: unknown, context: Record<string, unkno
   const stack = error instanceof Error ? error.stack : undefined;
   console.error("[Runtime Error]", message, { context, stack });
 }
-

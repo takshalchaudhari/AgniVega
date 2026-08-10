@@ -57,7 +57,9 @@ export async function captureToSentry(error: MonitoredError): Promise<boolean> {
         {
           type: error.type ?? "Error",
           value: error.message,
-          stacktrace: error.stack ? { frames: [{ filename: error.url ?? "app", function: error.stack.slice(0, 900) }] } : undefined,
+          stacktrace: error.stack
+            ? { frames: [{ filename: error.url ?? "app", function: error.stack.slice(0, 900) }] }
+            : undefined,
         },
       ],
     },

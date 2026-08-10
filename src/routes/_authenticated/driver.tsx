@@ -39,7 +39,10 @@ export const Route = createFileRoute("/_authenticated/driver")({
           "Accept pooled farm loads, verify handover QR codes and track diesel-adjusted net margin per trip.",
       },
       { property: "og:title", content: "Driver Cockpit — Smart Krishi-Yatra AI" },
-      { property: "og:description", content: "Loads, KYC, navigation and net margin for rural transporters." },
+      {
+        property: "og:description",
+        content: "Loads, KYC, navigation and net margin for rural transporters.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -190,42 +193,43 @@ function DriverPortal() {
                   .some((v: string) => String(v).toLowerCase().includes(q));
               })
               .map((load: any) => {
-              const margin = driverNetMargin(
-                Number(load.freight_share),
-                referenceVehicle,
-                Number(load.distance_km),
-              );
-              return (
-                <Card key={load.id}>
-                  <CardContent className="flex flex-wrap items-center justify-between gap-4 pt-6">
-                    <div>
-                      <p className="font-semibold">
-                        {load.crops?.name_en} · {Number(load.weight_kg)} kg
-                        {load.emergency && (
-                          <Badge variant="destructive" className="ml-2">
-                            Emergency
-                          </Badge>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {load.village_name} → {load.mandis?.name} · {Number(load.distance_km).toFixed(1)} km
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        <Fuel className="inline h-3 w-3" /> diesel {rupees(margin.diesel)} · tolls{" "}
-                        {rupees(margin.tolls)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground">Net margin</p>
-                      <p className="text-2xl font-bold text-primary">{rupees(margin.net)}</p>
-                    </div>
-                    <Button onClick={() => accept.mutate(load.id)} disabled={accept.isPending}>
-                      Accept load
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                const margin = driverNetMargin(
+                  Number(load.freight_share),
+                  referenceVehicle,
+                  Number(load.distance_km),
+                );
+                return (
+                  <Card key={load.id}>
+                    <CardContent className="flex flex-wrap items-center justify-between gap-4 pt-6">
+                      <div>
+                        <p className="font-semibold">
+                          {load.crops?.name_en} · {Number(load.weight_kg)} kg
+                          {load.emergency && (
+                            <Badge variant="destructive" className="ml-2">
+                              Emergency
+                            </Badge>
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {load.village_name} → {load.mandis?.name} ·{" "}
+                          {Number(load.distance_km).toFixed(1)} km
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          <Fuel className="inline h-3 w-3" /> diesel {rupees(margin.diesel)} · tolls{" "}
+                          {rupees(margin.tolls)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Net margin</p>
+                        <p className="text-2xl font-bold text-primary">{rupees(margin.net)}</p>
+                      </div>
+                      <Button onClick={() => accept.mutate(load.id)} disabled={accept.isPending}>
+                        Accept load
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             {!loads.data?.blocked && (loads.data?.loads ?? []).length === 0 && (
               <Card>
                 <CardContent className="pt-6 text-sm text-muted-foreground">
@@ -245,13 +249,17 @@ function DriverPortal() {
                       {trip.mandis?.name ?? "Trip"} · {Number(trip.total_weight_kg)} kg
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {Number(trip.total_distance_km).toFixed(1)} km · {trip.trip_stops?.length ?? 0} stops
+                      {Number(trip.total_distance_km).toFixed(1)} km ·{" "}
+                      {trip.trip_stops?.length ?? 0} stops
                     </p>
                   </div>
                   <Badge variant="secondary">{trip.status}</Badge>
                   <div className="flex gap-2">
                     {trip.status === "PLANNED" && (
-                      <Button size="sm" onClick={() => setStatus.mutate({ tripId: trip.id, status: "ACTIVE" })}>
+                      <Button
+                        size="sm"
+                        onClick={() => setStatus.mutate({ tripId: trip.id, status: "ACTIVE" })}
+                      >
                         <Navigation className="mr-1 h-4 w-4" /> Start trip
                       </Button>
                     )}
@@ -261,7 +269,7 @@ function DriverPortal() {
                         variant="secondary"
                         onClick={() => setStatus.mutate({ tripId: trip.id, status: "COMPLETED" })}
                       >
-                        Complete with GPS proof
+                        Complete with location proof
                       </Button>
                     )}
                   </div>
@@ -270,7 +278,9 @@ function DriverPortal() {
             ))}
             {(trips.data ?? []).length === 0 && (
               <Card>
-                <CardContent className="pt-6 text-sm text-muted-foreground">No trips yet.</CardContent>
+                <CardContent className="pt-6 text-sm text-muted-foreground">
+                  No trips yet.
+                </CardContent>
               </Card>
             )}
           </TabsContent>
@@ -292,7 +302,11 @@ function DriverPortal() {
                   placeholder="KY-XXXXXXXX-XXXXXX"
                   className="font-mono uppercase"
                 />
-                <Button className="w-full" onClick={() => scan.mutate()} disabled={!token || scan.isPending}>
+                <Button
+                  className="w-full"
+                  onClick={() => scan.mutate()}
+                  disabled={!token || scan.isPending}
+                >
                   Verify handover
                 </Button>
               </CardContent>
@@ -339,7 +353,10 @@ function DriverPortal() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label>Phone</Label>
-                    <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                    <Input
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    />
                   </div>
                   <div>
                     <Label>Licence number</Label>

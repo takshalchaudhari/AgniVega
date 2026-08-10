@@ -7,10 +7,7 @@
 const SW_URL = "/sw.js";
 
 function isPreviewHost(hostname: string): boolean {
-  return (
-    hostname.startsWith("id-preview--") ||
-    hostname.startsWith("preview--")
-  );
+  return hostname.startsWith("id-preview--") || hostname.startsWith("preview--");
 }
 
 async function unregisterAppWorker(): Promise<void> {

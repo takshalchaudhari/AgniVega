@@ -52,16 +52,23 @@ export interface TelemetrySnapshot {
 export function summarize(events: TelemetryEvent[]): TelemetrySnapshot["summary"] {
   const timed = events.filter((e) => e.kind !== "error").map((e) => e.durationMs);
   const sorted = [...timed].sort((a, b) => a - b);
-  const pick = (p: number) => (sorted.length ? (sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] ?? 0) : 0);
+  const pick = (p: number) =>
+    sorted.length ? (sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] ?? 0) : 0;
   const worst = events.reduce<TelemetryEvent | null>(
     (acc, e) => (acc == null || e.durationMs > acc.durationMs ? e : acc),
     null,
   );
   return {
     total: events.length,
-    slowQueries: events.filter((e) => e.kind === "query" && e.durationMs >= TELEMETRY_THRESHOLDS.slowQueryMs).length,
-    slowApiCalls: events.filter((e) => e.kind === "api" && e.durationMs >= TELEMETRY_THRESHOLDS.slowApiMs).length,
-    slowRenders: events.filter((e) => e.kind === "render" && e.durationMs >= TELEMETRY_THRESHOLDS.slowRenderMs).length,
+    slowQueries: events.filter(
+      (e) => e.kind === "query" && e.durationMs >= TELEMETRY_THRESHOLDS.slowQueryMs,
+    ).length,
+    slowApiCalls: events.filter(
+      (e) => e.kind === "api" && e.durationMs >= TELEMETRY_THRESHOLDS.slowApiMs,
+    ).length,
+    slowRenders: events.filter(
+      (e) => e.kind === "render" && e.durationMs >= TELEMETRY_THRESHOLDS.slowRenderMs,
+    ).length,
     errors: events.filter((e) => e.kind === "error" || !e.ok).length,
     p50Ms: Math.round(pick(0.5)),
     p95Ms: Math.round(pick(0.95)),

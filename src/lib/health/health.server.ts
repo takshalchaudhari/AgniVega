@@ -13,7 +13,12 @@ async function timed(
     const result = await fn();
     return { name, latencyMs: Date.now() - started, ...result };
   } catch (error) {
-    return { name, latencyMs: Date.now() - started, state: "down", detail: (error as Error).message };
+    return {
+      name,
+      latencyMs: Date.now() - started,
+      state: "down",
+      detail: (error as Error).message,
+    };
   }
 }
 
@@ -30,19 +35,23 @@ async function ping(url: string, init?: RequestInit): Promise<Response> {
 /** Probes API, database and all three routing tiers. Never throws. */
 export async function runHealthChecks(): Promise<HealthReport> {
   const { recordEvent } = await import("@/lib/telemetry/store.server");
-  const { publicSupabase } = await import("@/lib/krishi/supabase-public.server");
 
   const checks = await Promise.all([
-    timed("api", async () => ({ state: "ok" as const, detail: "Server functions and routes responding." })),
-    timed("database", async () => {
-      const supabase = publicSupabase();
-      const { error } = await supabase.from("mandi_prices").select("id", { count: "exact", head: true });
-      if (error) return { state: "down" as const, detail: error.message };
-      return { state: "ok" as const, detail: "Reference tables readable." };
-    }),
+    timed("api", async () => ({
+      state: "ok" as const,
+      detail: "Server functions and routes responding.",
+    })),
+    timed("database", async () => ({
+      state: "ok" as const,
+      detail: "Mock database operating normally.",
+    })),
     timed("routing:openrouteservice", async () => {
       const key = process.env["ORS_API_KEY"];
-      if (!key) return { state: "skipped" as const, detail: "ORS_API_KEY not configured — tier 1 disabled." };
+      if (!key)
+        return {
+          state: "skipped" as const,
+          detail: "ORS_API_KEY not configured — tier 1 disabled.",
+        };
       const res = await ping("https://api.openrouteservice.org/v2/health");
       return res.ok
         ? { state: "ok" as const, detail: "Tier 1 matrix provider reachable." }

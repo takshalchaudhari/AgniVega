@@ -1,4 +1,9 @@
-import { summarize, TELEMETRY_THRESHOLDS, type TelemetryEvent, type TelemetrySnapshot } from "./types";
+import {
+  summarize,
+  TELEMETRY_THRESHOLDS,
+  type TelemetryEvent,
+  type TelemetrySnapshot,
+} from "./types";
 
 /**
  * In-memory ring buffer for the profiling mode. Lives per server isolate, so it

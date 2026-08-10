@@ -17,11 +17,7 @@ import {
 } from "@/lib/demo/simulation";
 import { conflictCsv, shiftLogCsv } from "@/lib/demo/shift-export";
 import { parsePresetFile, presetTemplateCsv } from "@/lib/demo/assign-rules";
-import {
-  chooseDriver,
-  DEFAULT_ASSIGN_RULES,
-  evaluateCandidates,
-} from "@/lib/demo/assign-rules";
+import { chooseDriver, DEFAULT_ASSIGN_RULES, evaluateCandidates } from "@/lib/demo/assign-rules";
 import { clearTranscripts, getTranscripts, saveTranscript } from "@/lib/voice/transcripts";
 import { encodeWav, transcribe } from "@/lib/voice/recorder";
 import { LiveMap } from "@/components/agnivega/LiveMap";
@@ -30,7 +26,11 @@ import { TranscriptLog } from "@/components/agnivega/TranscriptLog";
 
 const roles = vi.hoisted(() => ({ isAdmin: false }));
 vi.mock("@/lib/krishi/useRole", () => ({
-  useMyRoles: () => ({ roles: roles.isAdmin ? ["admin"] : [], isAdmin: roles.isAdmin, ready: true }),
+  useMyRoles: () => ({
+    roles: roles.isAdmin ? ["admin"] : [],
+    isAdmin: roles.isAdmin,
+    ready: true,
+  }),
 }));
 
 import { AdminOnly } from "@/components/agnivega/AdminOnly";
@@ -180,13 +180,17 @@ describe("auto-assign rules", () => {
   it("enforces skill tags only when required", () => {
     const unskilled = { ...near, skills: [] };
     expect(chooseDriver(job, [unskilled], {}, rules)).toBeNull();
-    expect(chooseDriver(job, [unskilled], {}, { ...rules, requireSkillMatch: false })).not.toBeNull();
+    expect(
+      chooseDriver(job, [unskilled], {}, { ...rules, requireSkillMatch: false }),
+    ).not.toBeNull();
   });
 
   it("lets emergency loads override the distance cap when configured", () => {
     const urgent = { ...job, emergency: true, tags: ["priority"] };
     expect(chooseDriver(urgent, [far], {}, rules)?.driverId).toBe("far");
-    expect(chooseDriver(urgent, [far], {}, { ...rules, emergencyOverridesLimits: false })).toBeNull();
+    expect(
+      chooseDriver(urgent, [far], {}, { ...rules, emergencyOverridesLimits: false }),
+    ).toBeNull();
   });
 
   it("picks the nearest driver under the nearest strategy", () => {
@@ -201,7 +205,12 @@ describe("auto-assign rules", () => {
     assignAllJobs();
     const state = JSON.parse(localStorage.getItem("agnivega:sim") ?? "{}");
     expect(state.jobs.every((j: any) => j.driverId === null)).toBe(true);
-    setAssignRules({ maxDistanceKm: 80, maxJobsPerDriver: 9, maxHoursOfService: 40, requireSkillMatch: false });
+    setAssignRules({
+      maxDistanceKm: 80,
+      maxJobsPerDriver: 9,
+      maxHoursOfService: 40,
+      requireSkillMatch: false,
+    });
     assignAllJobs();
     const after = JSON.parse(localStorage.getItem("agnivega:sim") ?? "{}");
     expect(after.jobs.every((j: any) => j.driverId)).toBe(true);
@@ -225,7 +234,12 @@ describe("demo shift alerts, presets, look-ahead and export", () => {
 
   it("schedules capacity-blocked drivers inside the look-ahead horizon", () => {
     startSimulation({ jobs: 6 });
-    setAssignRules({ maxJobsPerDriver: 1, requireSkillMatch: false, maxDistanceKm: 90, maxEtaMinutes: 240 });
+    setAssignRules({
+      maxJobsPerDriver: 1,
+      requireSkillMatch: false,
+      maxDistanceKm: 90,
+      maxEtaMinutes: 240,
+    });
     assignAllJobs();
     const blocked = JSON.parse(localStorage.getItem("agnivega:sim") ?? "{}").jobs.filter(
       (j: any) => !j.driverId,
@@ -278,17 +292,17 @@ describe("conflict reporting, preset import and alert thresholds", () => {
       JSON.stringify([{ key: "night", label: "Night", maxDistanceKm: 12, strategy: "nearest" }]),
     );
     expect(json.errors).toHaveLength(0);
-    expect(json.presets.night?.rules.maxDistanceKm).toBe(12);
+    expect(json.presets["night"]?.rules.maxDistanceKm).toBe(12);
 
     const csv = parsePresetFile(presetTemplateCsv());
     expect(Object.keys(csv.presets)).toContain("emergency");
-    expect(csv.presets.emergency?.rules.strategy).toBe("fastest");
+    expect(csv.presets["emergency"]?.rules.strategy).toBe("fastest");
   });
 
   it("imports presets into the store and lets them be applied", () => {
     startSimulation({ jobs: 2 });
     const { added, errors } = importPresets(
-      'key,label,maxDistanceKm,maxEtaMinutes,strategy\nmonsoon,Monsoon,15,25,nearest\n',
+      "key,label,maxDistanceKm,maxEtaMinutes,strategy\nmonsoon,Monsoon,15,25,nearest\n",
     );
     expect(errors).toHaveLength(0);
     expect(added).toContain("monsoon");
@@ -307,7 +321,12 @@ describe("conflict reporting, preset import and alert thresholds", () => {
 
   it("honours configurable alert thresholds", () => {
     startSimulation({ jobs: 6 });
-    setAssignRules({ maxDistanceKm: 90, maxEtaMinutes: 240, requireSkillMatch: false, maxHoursOfService: 40 });
+    setAssignRules({
+      maxDistanceKm: 90,
+      maxEtaMinutes: 240,
+      requireSkillMatch: false,
+      maxHoursOfService: 40,
+    });
     setAlertThresholds({ hosBufferHours: 0, minSkillMatchScore: 0, etaBufferMinutes: 0 });
     const quiet = assignmentAlerts().length;
     setAlertThresholds({ minSkillMatchScore: 1 });

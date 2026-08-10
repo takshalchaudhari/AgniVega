@@ -86,7 +86,9 @@ export function PerfOverlay() {
                 </Badge>
                 {s.name}
               </span>
-              <span className={`tabular-nums ${!s.ok ? "text-destructive" : slow ? "text-accent-foreground" : "text-muted-foreground"}`}>
+              <span
+                className={`tabular-nums ${!s.ok ? "text-destructive" : slow ? "text-accent-foreground" : "text-muted-foreground"}`}
+              >
                 {s.durationMs}ms
               </span>
             </div>
@@ -95,7 +97,10 @@ export function PerfOverlay() {
         {samples.length === 0 ? <p className="text-muted-foreground">Collecting samples…</p> : null}
       </div>
 
-      <button className="mt-2 text-[11px] underline text-muted-foreground" onClick={() => setPerfMode(false)}>
+      <button
+        className="mt-2 text-[11px] underline text-muted-foreground"
+        onClick={() => setPerfMode(false)}
+      >
         Turn profiling off
       </button>
     </div>

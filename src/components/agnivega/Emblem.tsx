@@ -24,12 +24,7 @@ export function Emblem({ className = "h-10 w-10", title = "Team Agnivega" }: Emb
         strokeLinecap="round"
         fill="none"
       />
-      <path
-        d="M32 34v18"
-        stroke="var(--gold)"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
+      <path d="M32 34v18" stroke="var(--gold)" strokeWidth="2.4" strokeLinecap="round" />
       <path
         d="M12 44c8 5 32 5 40 0"
         stroke="oklch(0.85 0.02 150)"

@@ -27,9 +27,7 @@ describe("PerfOverlay", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const { container } = render(<PerfOverlay />);
     expect(container).toBeTruthy();
-    expect(
-      error.mock.calls.some((c) => String(c[0]).includes("Maximum update depth")),
-    ).toBe(false);
+    expect(error.mock.calls.some((c) => String(c[0]).includes("Maximum update depth"))).toBe(false);
     error.mockRestore();
   });
 
@@ -38,9 +36,7 @@ describe("PerfOverlay", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     render(<PerfOverlay />);
     for (let i = 0; i < 25; i += 1) record("api", `call:${i}`, i);
-    expect(
-      error.mock.calls.some((c) => String(c[0]).includes("Maximum update depth")),
-    ).toBe(false);
+    expect(error.mock.calls.some((c) => String(c[0]).includes("Maximum update depth"))).toBe(false);
     error.mockRestore();
   });
 });

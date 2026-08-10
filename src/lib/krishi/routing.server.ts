@@ -19,7 +19,10 @@ const TIMEOUT_MS = 3000;
  * different crops and weights. A short-lived in-process cache keeps the second
  * calculation instant instead of paying another provider round trip. */
 const CACHE_TTL_MS = 5 * 60_000;
-const matrixCache = new Map<string, { at: number; value: RouteMatrix & { telemetry: FallbackTelemetry } }>();
+const matrixCache = new Map<
+  string,
+  { at: number; value: RouteMatrix & { telemetry: FallbackTelemetry } }
+>();
 
 function cacheKey(points: LatLng[]): string {
   return points.map((p) => `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`).join("|");
@@ -36,7 +39,9 @@ async function withTimeout(input: string, init: RequestInit): Promise<Response> 
 }
 
 /** Tier 1 — OpenRouteService matrix API (requires ORS_API_KEY). */
-async function tryOpenRouteService(points: LatLng[]): Promise<Omit<RouteMatrix, "latencyMs"> | null> {
+async function tryOpenRouteService(
+  points: LatLng[],
+): Promise<Omit<RouteMatrix, "latencyMs"> | null> {
   const key = process.env["ORS_API_KEY"];
   if (!key) return null;
   const response = await withTimeout("https://api.openrouteservice.org/v2/matrix/driving-hgv", {
@@ -99,7 +104,9 @@ export interface FallbackTelemetry {
  * Triple-fallback distance matrix.
  * OpenRouteService -> OSRM -> Haversine. Never throws.
  */
-export async function routeMatrix(points: LatLng[]): Promise<RouteMatrix & { telemetry: FallbackTelemetry }> {
+export async function routeMatrix(
+  points: LatLng[],
+): Promise<RouteMatrix & { telemetry: FallbackTelemetry }> {
   const started = Date.now();
   const key = cacheKey(points);
   const hit = matrixCache.get(key);
@@ -112,7 +119,11 @@ export async function routeMatrix(points: LatLng[]): Promise<RouteMatrix & { tel
     const ors = await tryOpenRouteService(points);
     if (ors) {
       attempted.push({ tier: "openrouteservice", ok: true });
-      const value = { ...ors, latencyMs: Date.now() - started, telemetry: { tier: "openrouteservice" as const, attempted } };
+      const value = {
+        ...ors,
+        latencyMs: Date.now() - started,
+        telemetry: { tier: "openrouteservice" as const, attempted },
+      };
       matrixCache.set(key, { at: Date.now(), value });
       return value;
     }
@@ -124,7 +135,11 @@ export async function routeMatrix(points: LatLng[]): Promise<RouteMatrix & { tel
   try {
     const osrm = await tryOsrm(points);
     attempted.push({ tier: "osrm", ok: true });
-    const value = { ...osrm, latencyMs: Date.now() - started, telemetry: { tier: "osrm" as const, attempted } };
+    const value = {
+      ...osrm,
+      latencyMs: Date.now() - started,
+      telemetry: { tier: "osrm" as const, attempted },
+    };
     matrixCache.set(key, { at: Date.now(), value });
     return value;
   } catch (error) {
@@ -141,5 +156,9 @@ export async function routeMatrix(points: LatLng[]): Promise<RouteMatrix & { tel
     source: "server",
     detail: attempted.map((a) => `${a.tier}:${a.ok ? "ok" : (a.error ?? "failed")}`).join(" | "),
   });
-  return { ...fallback, latencyMs: Date.now() - started, telemetry: { tier: "haversine", attempted } };
+  return {
+    ...fallback,
+    latencyMs: Date.now() - started,
+    telemetry: { tier: "haversine", attempted },
+  };
 }

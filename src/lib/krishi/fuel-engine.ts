@@ -1,9 +1,4 @@
-import {
-  FUEL_BASELINE,
-  PLATFORM,
-  type VehicleProfile,
-  smallestVehicleFor,
-} from "./constants";
+import { FUEL_BASELINE, PLATFORM, type VehicleProfile, smallestVehicleFor } from "./constants";
 
 export interface FuelRates {
   diesel: number;
@@ -20,7 +15,10 @@ export const DEFAULT_FUEL_RATES: FuelRates = {
  *
  *   rate = vehicle_base_cost + (local_fuel_price / vehicle_mileage) + toll_allowance
  */
-export function freightRatePerKm(vehicle: VehicleProfile, rates: FuelRates = DEFAULT_FUEL_RATES): number {
+export function freightRatePerKm(
+  vehicle: VehicleProfile,
+  rates: FuelRates = DEFAULT_FUEL_RATES,
+): number {
   const fuelPrice = vehicle.fuel === "petrol" ? rates.petrol : rates.diesel;
   return vehicle.baseCostPerKm + fuelPrice / vehicle.mileageKmpl + vehicle.tollAllowancePerKm;
 }
@@ -95,16 +93,18 @@ export interface EarningsItemisation {
   grossPayout: number;
   freightShare: number;
   platformFee: number;
+  spoilageLoss: number;
   netPayout: number;
   commissionPercent: number;
 }
 
-/** Net = (mandi_price * weight) - freight_share - platform_fee */
+/** Net = (mandi_price * weight) - freight_share - platform_fee - spoilage_loss */
 export function itemiseEarnings(
   pricePerKg: number,
   weightKg: number,
   freightShare: number,
   commissionPercent: number,
+  spoilageLoss: number = 0,
 ): EarningsItemisation {
   const grossPayout = pricePerKg * weightKg;
   const platformFee = (grossPayout * commissionPercent) / 100;
@@ -112,7 +112,8 @@ export function itemiseEarnings(
     grossPayout,
     freightShare,
     platformFee,
-    netPayout: grossPayout - freightShare - platformFee,
+    spoilageLoss,
+    netPayout: grossPayout - freightShare - platformFee - spoilageLoss,
     commissionPercent,
   };
 }
@@ -135,7 +136,8 @@ export function spoilageRisk(
   const hoursRemaining = Math.max(0, spoilageHours - transitHours);
   const ratio = spoilageHours === 0 ? 1 : Math.min(1, transitHours / spoilageHours);
   const riskPercent = Math.round(ratio * 100);
-  const level: SpoilageRisk["level"] = riskPercent >= 60 ? "critical" : riskPercent >= 30 ? "watch" : "safe";
+  const level: SpoilageRisk["level"] =
+    riskPercent >= 60 ? "critical" : riskPercent >= 30 ? "watch" : "safe";
   return {
     hoursRemaining,
     transitHours,
@@ -159,7 +161,10 @@ export function recommendVehicle(weightKg: number): VehicleProfile {
 }
 
 /** Litres of diesel and kg of CO2 avoided by pooling instead of running solo. */
-export function esgSavings(soloLitres: number, pooledLitres: number): { litresSaved: number; co2Saved: number } {
+export function esgSavings(
+  soloLitres: number,
+  pooledLitres: number,
+): { litresSaved: number; co2Saved: number } {
   const litresSaved = Math.max(0, soloLitres - pooledLitres);
   return { litresSaved, co2Saved: litresSaved * PLATFORM.co2PerLitre };
 }

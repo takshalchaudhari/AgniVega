@@ -27,7 +27,11 @@ export const Route = createFileRoute("/_authenticated/diagnostics")({
     ],
   }),
   component: DiagnosticsGate,
-  errorComponent: ({ error }) => <div role="alert" className="p-6 text-sm">{error.message}</div>,
+  errorComponent: ({ error }) => (
+    <div role="alert" className="p-6 text-sm">
+      {error.message}
+    </div>
+  ),
 });
 
 /** Profiling is an operator tool: farmers and drivers never see it. */
@@ -83,7 +87,9 @@ function EventTable({ events }: { events: TelemetryEvent[] }) {
             >
               {event.durationMs} ms
             </span>
-            <p className="text-[11px] text-muted-foreground">{new Date(event.at).toLocaleTimeString()}</p>
+            <p className="text-[11px] text-muted-foreground">
+              {new Date(event.at).toLocaleTimeString()}
+            </p>
           </div>
         </div>
       ))}
@@ -131,7 +137,9 @@ function DiagnosticsPage() {
               size="sm"
               variant="ghost"
               onClick={() =>
-                void reset().then(() => queryClient.invalidateQueries({ queryKey: ["telemetry-snapshot"] }))
+                void reset().then(() =>
+                  queryClient.invalidateQueries({ queryKey: ["telemetry-snapshot"] }),
+                )
               }
             >
               Clear
@@ -147,7 +155,10 @@ function DiagnosticsPage() {
               ["Slow renders", summary?.slowRenders ?? 0],
               ["p95", `${summary?.p95Ms ?? 0} ms`],
             ].map(([label, value]) => (
-              <div key={String(label)} className="rounded-md border border-border/60 p-2 text-center">
+              <div
+                key={String(label)}
+                className="rounded-md border border-border/60 p-2 text-center"
+              >
                 <p className="text-xs uppercase text-muted-foreground">{label}</p>
                 <p className="text-lg font-semibold tabular-nums">{value}</p>
               </div>
@@ -162,16 +173,22 @@ function DiagnosticsPage() {
               <TabsTrigger value="errors">Errors</TabsTrigger>
             </TabsList>
             <TabsContent value="queries">
-              <EventTable events={events.filter((e) => e.kind === "query")} />
+              <EventTable events={events.filter((e: TelemetryEvent) => e.kind === "query")} />
             </TabsContent>
             <TabsContent value="api">
-              <EventTable events={events.filter((e) => e.kind === "api" || e.kind === "route")} />
+              <EventTable
+                events={events.filter(
+                  (e: TelemetryEvent) => e.kind === "api" || e.kind === "route",
+                )}
+              />
             </TabsContent>
             <TabsContent value="render">
-              <EventTable events={events.filter((e) => e.kind === "render")} />
+              <EventTable events={events.filter((e: TelemetryEvent) => e.kind === "render")} />
             </TabsContent>
             <TabsContent value="errors">
-              <EventTable events={events.filter((e) => e.kind === "error" || !e.ok)} />
+              <EventTable
+                events={events.filter((e: TelemetryEvent) => e.kind === "error" || !e.ok)}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -179,8 +196,8 @@ function DiagnosticsPage() {
 
       <p className="flex items-center gap-2 text-xs text-muted-foreground">
         <ShieldAlert className="h-3.5 w-3.5" />
-        Samples live in server memory only (last 500) and contain no personal data. Errors are relayed to your
-        monitoring service when SENTRY_DSN is configured.
+        Samples live in server memory only (last 500) and contain no personal data. Errors are
+        relayed to your monitoring service when SENTRY_DSN is configured.
       </p>
     </div>
   );

@@ -37,7 +37,13 @@ export function HealthWidget({ compact = false }: { compact?: boolean }) {
     return (
       <Badge variant="outline" className={TONE[status]}>
         <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-current" />
-        {status === "ok" ? "All systems normal" : status === "degraded" ? "Degraded" : status === "down" ? "Outage" : "Checking"}
+        {status === "ok"
+          ? "All systems normal"
+          : status === "degraded"
+            ? "Degraded"
+            : status === "down"
+              ? "Outage"
+              : "Checking"}
       </Badge>
     );
   }
@@ -76,7 +82,9 @@ export function HealthWidget({ compact = false }: { compact?: boolean }) {
                 <Badge variant="outline" className={TONE[check.state]}>
                   {check.state}
                 </Badge>
-                <p className="mt-1 text-xs tabular-nums text-muted-foreground">{check.latencyMs} ms</p>
+                <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+                  {check.latencyMs} ms
+                </p>
               </div>
             </div>
           );

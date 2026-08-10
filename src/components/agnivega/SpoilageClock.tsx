@@ -20,11 +20,7 @@ export function SpoilageClock({ deadlineIso, totalHours, level, label }: Spoilag
   const hoursLeft = msLeft / 3_600_000;
   const percent = Math.max(0, Math.min(100, (hoursLeft / Math.max(1, totalHours)) * 100));
   const tone =
-    level === "critical"
-      ? "text-destructive"
-      : level === "watch"
-        ? "text-warn"
-        : "text-success";
+    level === "critical" ? "text-destructive" : level === "watch" ? "text-warn" : "text-success";
 
   return (
     <div className="rounded-lg border bg-card p-3">

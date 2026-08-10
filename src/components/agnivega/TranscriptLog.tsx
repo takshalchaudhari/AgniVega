@@ -16,7 +16,12 @@ export function TranscriptLog({ lang }: { lang: Lang }) {
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Session captions
         </p>
-        <Button size="sm" variant="ghost" className="h-7 gap-1 px-2 text-xs" onClick={clearTranscripts}>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-7 gap-1 px-2 text-xs"
+          onClick={clearTranscripts}
+        >
           <Trash2 className="h-3.5 w-3.5" /> Clear
         </Button>
       </div>
@@ -36,7 +41,8 @@ export function TranscriptLog({ lang }: { lang: Lang }) {
             </div>
             {item.reply && <p className="mt-1 text-xs text-muted-foreground">↳ {item.reply}</p>}
             <p className="mt-1 text-[11px] text-muted-foreground">
-              {new Date(item.at).toLocaleTimeString("en-IN")} · {item.lang} · {item.seconds.toFixed(1)}s
+              {new Date(item.at).toLocaleTimeString("en-IN")} · {item.lang} ·{" "}
+              {item.seconds.toFixed(1)}s
             </p>
           </li>
         ))}

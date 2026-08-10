@@ -239,7 +239,12 @@ export function stepSimulation(): void {
     if (job.status === "DELIVERED") continue;
     if (job.status === "QUEUED") {
       if (!state.autoAssign) continue;
-      const pick = chooseDriver(job, ruleDrivers(state.drivers, jobs, state.rules), activeJobCounts(jobs), state.rules);
+      const pick = chooseDriver(
+        job,
+        ruleDrivers(state.drivers, jobs, state.rules),
+        activeJobCounts(jobs),
+        state.rules,
+      );
       if (!pick) {
         const note = "No driver matches the current rules — waiting";
         if (job.assignNote !== note) jobs[i] = { ...job, assignNote: note };
@@ -317,7 +322,12 @@ export function assignAllJobs(): void {
   for (let i = 0; i < jobs.length; i += 1) {
     const job = jobs[i]!;
     if (job.driverId || job.status === "DELIVERED") continue;
-    const pick = chooseDriver(job, ruleDrivers(state.drivers, jobs, state.rules), activeJobCounts(jobs), state.rules);
+    const pick = chooseDriver(
+      job,
+      ruleDrivers(state.drivers, jobs, state.rules),
+      activeJobCounts(jobs),
+      state.rules,
+    );
     jobs[i] = pick
       ? {
           ...job,
@@ -386,7 +396,9 @@ export function resetAlertThresholds(): void {
 
 function assignNoteFor(pick: Candidate, rules: AssignRules): string {
   const base = `${pick.distanceKm.toFixed(1)} km · ETA ${Math.round(pick.etaMinutes)} min · ${rules.strategy}`;
-  return pick.deferred ? `${base} · scheduled in ~${pick.availableInHours.toFixed(1)}h (look-ahead)` : base;
+  return pick.deferred
+    ? `${base} · scheduled in ~${pick.availableInHours.toFixed(1)}h (look-ahead)`
+    : base;
 }
 
 export interface AssignAlert {

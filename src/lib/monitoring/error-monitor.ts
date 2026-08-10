@@ -16,7 +16,9 @@ export function captureError(error: unknown, context?: Record<string, string>): 
   seen.add(key);
   if (seen.size > 100) seen.clear();
 
-  const detail = [err.stack ?? err.message, context ? JSON.stringify(context) : ""].filter(Boolean).join("\n");
+  const detail = [err.stack ?? err.message, context ? JSON.stringify(context) : ""]
+    .filter(Boolean)
+    .join("\n");
   record("error", `${err.name}: ${err.message}`.slice(0, 120), 0, {
     ok: false,
     detail: detail.slice(0, 2000),
@@ -30,7 +32,9 @@ export function installErrorMonitor(): void {
   installed = true;
 
   window.addEventListener("error", (event) => {
-    captureError(event.error ?? event.message, { file: `${event.filename}:${event.lineno}:${event.colno}` });
+    captureError(event.error ?? event.message, {
+      file: `${event.filename}:${event.lineno}:${event.colno}`,
+    });
   });
   window.addEventListener("unhandledrejection", (event) => {
     captureError(event.reason, { kind: "unhandledrejection" });

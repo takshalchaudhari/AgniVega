@@ -4,79 +4,180 @@ import { z } from "zod";
 import type { CalculationResult, ReferenceData } from "./types";
 
 const calcSchema = z.object({
-  cropId: z.string().uuid(),
+  cropId: z.string().uuid().or(z.string()),
   weightKg: z.number().min(1).max(20000),
   villageName: z.string().min(1).max(120),
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   demoMode: z.boolean().default(true),
   emergency: z.boolean().default(false),
+  delayMinutes: z.number().default(0),
 });
 
 export type CalcInput = z.infer<typeof calcSchema>;
 
-/** Public reference data for the farmer calculator (villages, mandis, crops, prices). */
+// Static Data Store for the Hackathon Prototype
+const mockCrops = [
+  {
+    id: "crop-1",
+    name_en: "Onion",
+    name_hi: "Pyaaz",
+    name_mr: "Kanda",
+    slug: "onion",
+    perishable: false,
+    spoilage_hours: 336,
+    crate_kg: 50,
+  },
+  {
+    id: "crop-2",
+    name_en: "Grapes",
+    name_hi: "Angoor",
+    name_mr: "Draksha",
+    slug: "grapes",
+    perishable: true,
+    spoilage_hours: 48,
+    crate_kg: 20,
+  },
+  {
+    id: "crop-3",
+    name_en: "Tomato",
+    name_hi: "Tamatar",
+    name_mr: "Tomato",
+    slug: "tomato",
+    perishable: true,
+    spoilage_hours: 72,
+    crate_kg: 25,
+  },
+];
+
+const mockVillages = [
+  {
+    id: "vil-1",
+    name: "Kopargaon Rural",
+    district: "Ahmednagar",
+    taluka: "Kopargaon",
+    lat: 19.8833,
+    lng: 74.4833,
+    unpaved_access: false,
+  },
+  {
+    id: "vil-2",
+    name: "Rahuri Rural",
+    district: "Ahmednagar",
+    taluka: "Rahuri",
+    lat: 19.4833,
+    lng: 74.4833,
+    unpaved_access: false,
+  },
+];
+
+const mockMandis = [
+  {
+    id: "mandi-1",
+    code: "KOP",
+    name: "Kopargaon APMC",
+    lat: 19.8833,
+    lng: 74.4833,
+    peak_hours: "06:00-10:00",
+    avg_gate_queue_minutes: 45,
+    district: "Ahmednagar",
+    taluka: "Kopargaon",
+  },
+  {
+    id: "mandi-2",
+    code: "RAH",
+    name: "Rahuri APMC",
+    lat: 19.4833,
+    lng: 74.4833,
+    peak_hours: "07:00-11:00",
+    avg_gate_queue_minutes: 30,
+    district: "Ahmednagar",
+    taluka: "Rahuri",
+  },
+  {
+    id: "mandi-3",
+    code: "NSK",
+    name: "Nashik APMC",
+    lat: 20.1833,
+    lng: 73.9833,
+    peak_hours: "05:00-12:00",
+    avg_gate_queue_minutes: 60,
+    district: "Nashik",
+    taluka: "Nashik",
+  },
+];
+
+const mockPrices = [
+  { id: "p1", crop_id: "crop-1", mandi_id: "mandi-1", price_per_kg: 18.5, source: "mock" },
+  { id: "p2", crop_id: "crop-1", mandi_id: "mandi-2", price_per_kg: 21.0, source: "mock" },
+  { id: "p3", crop_id: "crop-1", mandi_id: "mandi-3", price_per_kg: 24.5, source: "mock" },
+  { id: "p4", crop_id: "crop-2", mandi_id: "mandi-1", price_per_kg: 45.0, source: "mock" },
+  { id: "p5", crop_id: "crop-2", mandi_id: "mandi-2", price_per_kg: 48.0, source: "mock" },
+  { id: "p6", crop_id: "crop-2", mandi_id: "mandi-3", price_per_kg: 52.0, source: "mock" },
+  { id: "p7", crop_id: "crop-3", mandi_id: "mandi-1", price_per_kg: 25.0, source: "mock" },
+  { id: "p8", crop_id: "crop-3", mandi_id: "mandi-2", price_per_kg: 27.5, source: "mock" },
+  { id: "p9", crop_id: "crop-3", mandi_id: "mandi-3", price_per_kg: 29.0, source: "mock" },
+];
+
+const mockVehicles = [
+  {
+    id: "vt-1",
+    slug: "tata_ace",
+    name: "Tata Ace",
+    payload_kg: 750,
+    base_cost_per_km: 15.0,
+    toll_allowance_per_km: 0,
+    mileage_kmpl: 15,
+    fuel: "diesel",
+  },
+  {
+    id: "vt-2",
+    slug: "mahindra_pickup",
+    name: "Mahindra Pickup",
+    payload_kg: 1500,
+    base_cost_per_km: 20.0,
+    toll_allowance_per_km: 0,
+    mileage_kmpl: 12,
+    fuel: "diesel",
+  },
+];
+
 export const getReferenceData = createServerFn({ method: "GET" }).handler(
   async (): Promise<ReferenceData> => {
-    const { publicSupabase } = await import("./supabase-public.server");
-    const supabase = publicSupabase();
-
-    const [villages, mandis, crops, prices, vehicleTypes, config] = await Promise.all([
-      supabase.from("villages").select("*").order("name"),
-      supabase.from("mandis").select("*").order("name"),
-      supabase.from("crops").select("*").order("name_en"),
-      supabase.from("mandi_prices").select("*"),
-      supabase.from("vehicle_types").select("*").order("payload_kg"),
-      supabase.from("commission_config").select("*").eq("id", 1).maybeSingle(),
-    ]);
-
     return {
-      villages: (villages.data ?? []) as ReferenceData["villages"],
-      mandis: (mandis.data ?? []) as ReferenceData["mandis"],
-      crops: (crops.data ?? []) as ReferenceData["crops"],
-      prices: (prices.data ?? []).map((p) => ({ ...p, price_per_kg: Number(p.price_per_kg) })) as ReferenceData["prices"],
-      vehicleTypes: (vehicleTypes.data ?? []) as ReferenceData["vehicleTypes"],
-      commissionPercent: Number(config.data?.rate_percent ?? 3),
+      villages: mockVillages as any,
+      mandis: mockMandis as any,
+      crops: mockCrops as any,
+      prices: mockPrices as any,
+      vehicleTypes: mockVehicles as any,
+      commissionPercent: 3,
       fuel: {
-        diesel: Number(config.data?.diesel_price ?? 99.07),
-        petrol: Number(config.data?.petrol_price ?? 112.44),
+        diesel: 99.07,
+        petrol: 112.44,
       },
       demoMode: true,
     };
   },
 );
 
-/**
- * STEP 1 of the Calculate -> Confirm workflow.
- * Read-only: produces a quotation with zero database side effects.
- */
 export const calculateOptions = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => calcSchema.parse(input))
+  .validator((input: unknown) => calcSchema.parse(input))
   .handler(async ({ data }): Promise<CalculationResult> => {
-    const { publicSupabase } = await import("./supabase-public.server");
     const { computeOptions } = await import("./pooling.server");
     const { toVehicleProfile, PLATFORM } = await import("./vehicle-select");
     const { DEMO_LOADS } = await import("./demo-data");
     const { haversineKm } = await import("./geo");
-    const supabase = publicSupabase();
 
-    const [cropRes, mandiRes, priceRes, vehicleRes, configRes] = await Promise.all([
-      supabase.from("crops").select("*").eq("id", data.cropId).maybeSingle(),
-      supabase.from("mandis").select("*"),
-      supabase.from("mandi_prices").select("*").eq("crop_id", data.cropId),
-      supabase.from("vehicle_types").select("*"),
-      supabase.from("commission_config").select("*").eq("id", 1).maybeSingle(),
-    ]);
+    const crop = mockCrops.find((c) => c.id === data.cropId) || mockCrops[0]!;
 
-    const crop = cropRes.data;
-    if (!crop) throw new Error("Unknown crop selected");
+    const priceData = mockPrices.filter((p) => p.crop_id === crop.id);
 
     const priceByMandi = new Map<string, number>();
-    for (const row of priceRes.data ?? []) {
+    for (const row of priceData) {
       priceByMandi.set(row.mandi_id, Number(row.price_per_kg));
     }
 
-    const mandis = (mandiRes.data ?? [])
+    const mandis = mockMandis
       .filter((m) => priceByMandi.has(m.id))
       .map((m) => ({
         id: m.id,
@@ -90,39 +191,22 @@ export const calculateOptions = createServerFn({ method: "POST" })
 
     if (mandis.length === 0) throw new Error("No mandi is currently quoting this crop");
 
-    // Pool partners: live open shipments nearby, plus deterministic demo loads.
     const pickup = { lat: data.lat, lng: data.lng };
-    const live = await supabase
-      .from("shipment_requests")
-      .select("id, village_name, weight_kg, pickup_lat, pickup_lng")
-      .eq("crop_id", data.cropId)
-      .eq("status", "PENDING_POOL");
 
-    let partners = [
-      ...(live.data ?? []).map((row) => ({
-        id: row.id,
-        village: row.village_name,
-        weightKg: Number(row.weight_kg),
-        lat: row.pickup_lat,
-        lng: row.pickup_lng,
-      })),
-      ...(data.demoMode
-        ? DEMO_LOADS.filter((l) => l.cropSlug === crop.slug).map((l) => ({
-            id: l.id,
-            village: l.village,
-            weightKg: l.weightKg,
-            lat: l.lat,
-            lng: l.lng,
-          }))
-        : []),
-    ]
+    let partners = data.demoMode
+      ? DEMO_LOADS.filter((l) => l.cropSlug === crop.slug).map((l) => ({
+          id: l.id,
+          village: l.village,
+          weightKg: l.weightKg,
+          lat: l.lat,
+          lng: l.lng,
+        }))
+      : [];
+
+    partners = partners
       .filter((p) => haversineKm(pickup, { lat: p.lat, lng: p.lng }) <= PLATFORM.poolRadiusKm)
       .slice(0, 5);
 
-    // A pool of one is not a pool: without partners the pooled and solo columns
-    // are numerically identical and the comparison is meaningless. In demo mode
-    // we synthesise deterministic neighbouring loads of the same crop so the
-    // shared-truck economics are always demonstrable.
     if (data.demoMode && partners.length === 0) {
       const spread = [
         { village: `${data.villageName} Wasti`, dLat: 0.011, dLng: 0.009, factor: 0.9 },
@@ -138,7 +222,7 @@ export const calculateOptions = createServerFn({ method: "POST" })
       }));
     }
 
-    const vehicles = (vehicleRes.data ?? []).map(toVehicleProfile);
+    const vehicles = mockVehicles.map((v) => toVehicleProfile(v));
 
     return computeOptions({
       requestId: "self",
@@ -151,11 +235,12 @@ export const calculateOptions = createServerFn({ method: "POST" })
       partners,
       mandis,
       vehicles,
-      commissionPercent: Number(configRes.data?.rate_percent ?? 3),
+      commissionPercent: 3,
       fuel: {
-        diesel: Number(configRes.data?.diesel_price ?? 99.07),
-        petrol: Number(configRes.data?.petrol_price ?? 112.44),
+        diesel: 99.07,
+        petrol: 112.44,
       },
       demoMode: data.demoMode,
+      delayMinutes: data.delayMinutes,
     });
   });

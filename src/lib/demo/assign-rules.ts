@@ -67,7 +67,10 @@ export interface PresetProfile {
 }
 
 /** One-tap rule profiles for the admin demo tab. */
-export const ASSIGN_PRESETS: Record<PresetKey, { label: string; description: string; rules: AssignRules }> = {
+export const ASSIGN_PRESETS: Record<
+  PresetKey,
+  { label: string; description: string; rules: AssignRules }
+> = {
   emergency: {
     label: "Emergency",
     description: "Widest net, fastest driver, caps relaxed for urgent loads.",
@@ -232,7 +235,11 @@ export function chooseDriver(
 }
 
 /** Skill tags implied by a demo load. */
-export function tagsForLoad(load: { cropSlug: string; weightKg: number; emergency: boolean }): string[] {
+export function tagsForLoad(load: {
+  cropSlug: string;
+  weightKg: number;
+  emergency: boolean;
+}): string[] {
   const tags: string[] = [];
   if (["tomato", "grapes", "pomegranate"].includes(load.cropSlug)) tags.push("reefer");
   if (load.weightKg >= 800) tags.push("heavy");
@@ -256,7 +263,11 @@ function toBool(value: unknown): boolean {
 }
 
 function slug(value: string): string {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 /** Coerce an arbitrary record into a complete, valid rule set. */
@@ -269,7 +280,9 @@ export function coerceRules(input: Record<string, unknown>): AssignRules {
   for (const key of BOOLEAN_RULE_KEYS) {
     if (input[key] !== undefined && input[key] !== "") rules[key] = toBool(input[key]);
   }
-  const strategy = String(input["strategy"] ?? "").trim().toLowerCase();
+  const strategy = String(input["strategy"] ?? "")
+    .trim()
+    .toLowerCase();
   if (strategy === "nearest" || strategy === "fastest" || strategy === "balanced") {
     rules.strategy = strategy;
   }
@@ -366,14 +379,28 @@ export function parsePresetFile(text: string): PresetImportResult {
 
 /** Example file an admin can download, edit and re-import. */
 export function presetTemplateCsv(): string {
-  const cols = ["key", "label", "description", ...NUMERIC_RULE_KEYS, ...BOOLEAN_RULE_KEYS, "strategy"];
+  const cols = [
+    "key",
+    "label",
+    "description",
+    ...NUMERIC_RULE_KEYS,
+    ...BOOLEAN_RULE_KEYS,
+    "strategy",
+  ];
   const rows = (Object.keys(ASSIGN_PRESETS) as PresetKey[]).map((key) => {
     const p = ASSIGN_PRESETS[key];
-    const record: Record<string, unknown> = { key, label: p.label, description: p.description, ...p.rules };
-    return cols.map((c) => {
-      const v = String(record[c] ?? "");
-      return /[",]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
-    }).join(",");
+    const record: Record<string, unknown> = {
+      key,
+      label: p.label,
+      description: p.description,
+      ...p.rules,
+    };
+    return cols
+      .map((c) => {
+        const v = String(record[c] ?? "");
+        return /[",]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+      })
+      .join(",");
   });
   return [cols.join(","), ...rows].join("\n");
 }

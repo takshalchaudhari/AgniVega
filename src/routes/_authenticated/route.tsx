@@ -1,14 +1,14 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
+    // Dummy Auth for Hackathon: Check if "agnivega_auth" is in localStorage
+    const authStatus = typeof window !== "undefined" ? localStorage.getItem("agnivega_auth") : null;
+    if (!authStatus) {
       throw redirect({ to: "/auth", search: { next: location.href } as never });
     }
-    return { user: data.user };
+    return { user: { id: "dummy-user-1", role: authStatus } };
   },
   component: () => <Outlet />,
 });

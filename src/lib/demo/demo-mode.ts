@@ -46,10 +46,30 @@ export function useDemoMode(): [boolean, (on: boolean) => void] {
 }
 
 export const DEMO_ACCOUNTS = [
-  { role: "admin", email: "admin@agnivega.demo", password: "Agnivega@2026", label: "Admin control tower" },
-  { role: "farmer", email: "farmer@agnivega.demo", password: "Agnivega@2026", label: "Farmer portal" },
-  { role: "driver", email: "driver@agnivega.demo", password: "Agnivega@2026", label: "Driver cockpit" },
-  { role: "fleet", email: "fleet@agnivega.demo", password: "Agnivega@2026", label: "Fleet console" },
+  {
+    role: "admin",
+    email: "admin@agnivega.demo",
+    password: "Agnivega@2026",
+    label: "Admin control tower",
+  },
+  {
+    role: "farmer",
+    email: "farmer@agnivega.demo",
+    password: "Agnivega@2026",
+    label: "Farmer portal",
+  },
+  {
+    role: "driver",
+    email: "driver@agnivega.demo",
+    password: "Agnivega@2026",
+    label: "Driver cockpit",
+  },
+  {
+    role: "fleet",
+    email: "fleet@agnivega.demo",
+    password: "Agnivega@2026",
+    label: "Fleet console",
+  },
 ] as const;
 
 /**

@@ -21,11 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { closeDemo, useDemoMode } from "@/lib/demo/demo-mode";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import {
-  ASSIGN_PRESETS,
-  presetTemplateCsv,
-  type AssignStrategy,
-} from "@/lib/demo/assign-rules";
+import { ASSIGN_PRESETS, presetTemplateCsv, type AssignStrategy } from "@/lib/demo/assign-rules";
 import {
   downloadConflictsCsv,
   downloadConflictsPdf,
@@ -73,7 +69,8 @@ export function DemoControlPanel() {
   async function onImportFile(file: File | undefined) {
     if (!file) return;
     const { added, errors } = importPresets(await file.text());
-    if (added.length > 0) toast.success(`Imported ${added.length} preset${added.length === 1 ? "" : "s"}`);
+    if (added.length > 0)
+      toast.success(`Imported ${added.length} preset${added.length === 1 ? "" : "s"}`);
     if (errors.length > 0) toast.error(errors[0]!);
   }
 
@@ -114,10 +111,18 @@ export function DemoControlPanel() {
               <Pause className="mr-1 h-4 w-4" /> Pause
             </Button>
           )}
-          <Button variant="outline" onClick={() => stepSimulation()} disabled={sim.jobs.length === 0}>
+          <Button
+            variant="outline"
+            onClick={() => stepSimulation()}
+            disabled={sim.jobs.length === 0}
+          >
             <SkipForward className="mr-1 h-4 w-4" /> Step
           </Button>
-          <Button variant="outline" onClick={() => assignAllJobs()} disabled={sim.jobs.length === 0}>
+          <Button
+            variant="outline"
+            onClick={() => assignAllJobs()}
+            disabled={sim.jobs.length === 0}
+          >
             <Shuffle className="mr-1 h-4 w-4" /> Assign all jobs
           </Button>
           <Button
@@ -180,7 +185,10 @@ export function DemoControlPanel() {
         </div>
 
         {alerts.length > 0 && (
-          <div className="space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 p-3" data-testid="assign-alerts">
+          <div
+            className="space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 p-3"
+            data-testid="assign-alerts"
+          >
             <p className="flex items-center gap-2 text-sm font-semibold">
               <AlertTriangle className="h-4 w-4" />
               {blocking} blocking · {alerts.length - blocking} advisory conflict
@@ -204,7 +212,12 @@ export function DemoControlPanel() {
         <div className="space-y-2 rounded-md border p-3" data-testid="alert-thresholds">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">Alert thresholds</p>
-            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => resetAlertThresholds()}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs"
+              onClick={() => resetAlertThresholds()}
+            >
               Reset
             </Button>
           </div>
@@ -220,7 +233,9 @@ export function DemoControlPanel() {
               value={sim.thresholds.minSkillMatchScore}
               step={0.1}
               onChange={(minSkillMatchScore) =>
-                setAlertThresholds({ minSkillMatchScore: Math.min(1, Math.max(0, minSkillMatchScore)) })
+                setAlertThresholds({
+                  minSkillMatchScore: Math.min(1, Math.max(0, minSkillMatchScore)),
+                })
               }
             />
             <RuleNumber
@@ -266,7 +281,12 @@ export function DemoControlPanel() {
         <div className="space-y-3" data-testid="assign-rules">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">Auto-assign rules</p>
-            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => resetAssignRules()}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs"
+              onClick={() => resetAssignRules()}
+            >
               Reset defaults
             </Button>
           </div>
@@ -288,7 +308,9 @@ export function DemoControlPanel() {
               </Button>
             ))}
             <span className="self-center text-xs text-muted-foreground">
-              {sim.preset && presets[sim.preset] ? presets[sim.preset]!.description : "Custom rules"}
+              {sim.preset && presets[sim.preset]
+                ? presets[sim.preset]!.description
+                : "Custom rules"}
             </span>
           </div>
 
@@ -310,7 +332,12 @@ export function DemoControlPanel() {
                 e.target.value = "";
               }}
             />
-            <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={downloadPresetTemplate}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 text-xs"
+              onClick={downloadPresetTemplate}
+            >
               Download template
             </Button>
             {importedKeys.length > 0 && (
@@ -480,7 +507,9 @@ function RuleNumber({
         min={0}
         step={step}
         value={value}
-        onChange={(e) => Number.isFinite(e.target.valueAsNumber) && onChange(e.target.valueAsNumber)}
+        onChange={(e) =>
+          Number.isFinite(e.target.valueAsNumber) && onChange(e.target.valueAsNumber)
+        }
       />
     </div>
   );

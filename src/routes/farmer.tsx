@@ -17,13 +17,18 @@ import {
 } from "lucide-react";
 
 import { BrandHeader } from "@/components/agnivega/BrandHeader";
-import { AuthButton, useSupabaseUser } from "@/components/agnivega/AuthButton";
+import { AuthButton, useLocalUser } from "@/components/agnivega/AuthButton";
 import { VoiceInput, TalkBack, speak } from "@/components/agnivega/VoiceInput";
 import { LanguagePicker } from "@/components/agnivega/LanguagePicker";
 import { DemoToggleButton } from "@/components/agnivega/DemoBanner";
 import { useDemoMode } from "@/lib/demo/demo-mode";
 import { SpoilageClock } from "@/components/agnivega/SpoilageClock";
 import { LiveMap } from "@/components/agnivega/LiveMap";
+import { ENRHeroCard } from "@/components/agnivega/ENRHeroCard";
+import { ExplainabilityCard } from "@/components/agnivega/ExplainabilityCard";
+import { DelayAlertCard } from "@/components/agnivega/DelayAlertCard";
+import { VoiceIVRPrototype } from "@/components/agnivega/VoiceIVRPrototype";
+import { CropSelector } from "@/components/agnivega/CropSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,7 +70,8 @@ export const Route = createFileRoute("/farmer")({
       { property: "og:title", content: "Farmer Portal — Smart Krishi-Yatra AI" },
       {
         property: "og:description",
-        content: "Fuel-indexed freight, pooled trucks and spoilage-aware mandi selection for Kopargaon farmers.",
+        content:
+          "Fuel-indexed freight, pooled trucks and spoilage-aware mandi selection for Kopargaon farmers.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -74,12 +80,14 @@ export const Route = createFileRoute("/farmer")({
   component: FarmerPortal,
 });
 
+import { useSimulatedDelay } from "@/lib/demo/delay-sim";
+
 const OFFLINE_KEY = "krishi.offline.queue";
 
 function FarmerPortal() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { email } = useSupabaseUser();
+  const { role } = useLocalUser();
 
   const [lang, setLang] = useState<Lang>("mr");
   const [cropId, setCropId] = useState("");
@@ -90,9 +98,13 @@ function FarmerPortal() {
   const [demoMode, setDemoMode] = useDemoMode();
   const [assistantLine, setAssistantLine] = useState("");
   const [result, setResult] = useState<CalculationResult | null>(null);
-  const [pending, setPending] = useState<{ option: MandiOption; mode: "POOLED" | "SOLO" } | null>(null);
+  const [pending, setPending] = useState<{ option: MandiOption; mode: "POOLED" | "SOLO" } | null>(
+    null,
+  );
   const [handover, setHandover] = useState<string | null>(null);
   const [online, setOnline] = useState(true);
+  const [simulatedDelayMinutes, setSimulatedDelayMinutes] = useSimulatedDelay();
+  const [showVoiceIVR, setShowVoiceIVR] = useState(false);
 
   useEffect(() => {
     const sync = () => setOnline(navigator.onLine);
@@ -115,7 +127,7 @@ function FarmerPortal() {
   const shipments = useQuery({
     queryKey: ["my-shipments"],
     queryFn: () => shipmentsFn({}),
-    enabled: Boolean(email),
+    enabled: Boolean(role),
   });
 
   useEffect(() => {
@@ -144,6 +156,7 @@ function FarmerPortal() {
           lng: village.lng,
           demoMode,
           emergency,
+          delayMinutes: simulatedDelayMinutes ?? 0,
         },
       });
     },
@@ -200,7 +213,7 @@ function FarmerPortal() {
   });
 
   function requestConfirm(option: MandiOption, mode: "POOLED" | "SOLO") {
-    if (!email) {
+    if (!role) {
       navigate({ to: "/auth", search: { next: "/farmer" } as never });
       return;
     }
@@ -308,41 +321,55 @@ function FarmerPortal() {
               {assistantLine && <TalkBack text={assistantLine} lang={lang} />}
 
               <div>
-                <Label>{t("crop", lang)}</Label>
-                <Select value={cropId} onValueChange={setCropId}>
-                  <SelectTrigger className="field-tap">
-                    <SelectValue placeholder="Select crop" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(reference.data?.crops ?? []).map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {cropName(c, lang)} · {c.spoilage_hours}h shelf life
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="text-lg mb-2 block">{t("crop", lang)}</Label>
+                <CropSelector
+                  crops={reference.data?.crops ?? []}
+                  selectedId={cropId}
+                  onChange={setCropId}
+                  lang={lang}
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="qty">{t("weight", lang)}</Label>
-                  <Input
-                    id="qty"
-                    inputMode="decimal"
-                    className="field-tap"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                  />
+                  <Label htmlFor="qty" className="text-lg block mb-2">
+                    {t("weight", lang)}
+                  </Label>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-12 w-12 shrink-0 text-xl font-bold field-tap"
+                      onClick={() => setQuantity((q) => String(Math.max(1, (Number(q) || 0) - 1)))}
+                    >
+                      −
+                    </Button>
+                    <Input
+                      id="qty"
+                      inputMode="decimal"
+                      className="h-12 text-center text-xl font-bold field-tap"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-12 w-12 shrink-0 text-xl font-bold field-tap"
+                      onClick={() => setQuantity((q) => String((Number(q) || 0) + 1))}
+                    >
+                      +
+                    </Button>
+                  </div>
                 </div>
                 <div>
-                  <Label>Unit</Label>
+                  <Label className="text-lg block mb-2">Unit</Label>
                   <Select value={unit} onValueChange={(v) => setUnit(v as UnitKey)}>
-                    <SelectTrigger className="field-tap">
+                    <SelectTrigger className="h-12 text-lg font-medium field-tap">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(UNITS).map(([key, value]) => (
-                        <SelectItem key={key} value={key}>
+                        <SelectItem key={key} value={key} className="text-lg py-3">
                           {value.label}
                         </SelectItem>
                       ))}
@@ -369,7 +396,12 @@ function FarmerPortal() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button type="button" variant="outline" className="field-tap px-3" onClick={useGps}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="field-tap px-3"
+                    onClick={useGps}
+                  >
                     <MapPin className="h-5 w-5" />
                   </Button>
                 </div>
@@ -386,7 +418,9 @@ function FarmerPortal() {
               <div className="flex items-center justify-between rounded-md border p-3">
                 <div>
                   <p className="text-sm font-medium">Demo mode</p>
-                  <p className="text-xs text-muted-foreground">Seeded Kopargaon pool partners and prices</p>
+                  <p className="text-xs text-muted-foreground">
+                    Seeded Kopargaon pool partners and prices
+                  </p>
                 </div>
                 <Switch checked={demoMode} onCheckedChange={setDemoMode} />
               </div>
@@ -415,57 +449,106 @@ function FarmerPortal() {
               </Card>
             )}
 
+            {/* Voice / IVR prototype (toggleable) */}
+            {showVoiceIVR && (
+              <VoiceIVRPrototype
+                lang={lang}
+                onIntentParsed={(intent) => {
+                  const crops = reference.data?.crops ?? [];
+                  if (intent.crop) {
+                    const matched = crops.find((c) => c.slug === intent.crop);
+                    if (matched) setCropId(matched.id);
+                  }
+                  if (intent.weightKg && intent.weightKg > 0) {
+                    setQuantity(String(intent.weightKg));
+                    setUnit("kg");
+                  }
+                }}
+                {...(result
+                  ? {
+                      resultNarration: `${result.best.mandiName} मध्ये जा. ${rupees(result.best.pooled.netPayout)} मिळतील.`,
+                    }
+                  : {})}
+              />
+            )}
+
+            {/* Delay recalculation card */}
+            {result &&
+              simulatedDelayMinutes !== null &&
+              (() => {
+                const delayH = simulatedDelayMinutes / 60;
+                const newTransitH =
+                  result.best.distanceKm / 34 + result.best.queueMinutes / 60 + delayH;
+                const ratio = Math.min(1, newTransitH / (crop?.spoilage_hours ?? 336));
+                const newRisk = Math.round(ratio * 100);
+                const newLevel = newRisk >= 60 ? "critical" : newRisk >= 30 ? "watch" : "safe";
+                return (
+                  <DelayAlertCard
+                    delayMinutes={simulatedDelayMinutes}
+                    result={{
+                      recommendationChanged: false,
+                      oldMandiName: result.best.mandiName,
+                      oldNetPayout: result.best.pooled.netPayout,
+                      reason: `${crop?.name_en ?? "Crop"} shelf life is ${crop?.spoilage_hours ?? 336}h. Even with +${delayH.toFixed(1)}h delay, transit is ${newTransitH.toFixed(1)}h — ${newRisk}% of shelf life. Original destination remains optimal.`,
+                      newSpoilageRisk: newRisk,
+                      newSpoilageLevel: newLevel,
+                      hoursRemaining: (crop?.spoilage_hours ?? 336) - newTransitH,
+                    }}
+                    onAcknowledge={() => {
+                      setSimulatedDelayMinutes(null);
+                      setTimeout(() => calculate.mutate(), 0);
+                    }}
+                  />
+                );
+              })()}
+
             {result && (
               <>
-                <Card className="border-accent">
-                  <CardHeader className="pb-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <CardTitle className="text-lg">
-                        Best mandi — {result.best.mandiName}
-                      </CardTitle>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary" className="gap-1">
-                          <Fuel className="h-3 w-3" /> Diesel ₹{result.dieselPrice}/L
-                        </Badge>
-                        <Badge variant="outline">Router: {result.routerTier}</Badge>
-                        <Badge variant="outline">{result.commissionPercent}% platform fee</Badge>
-                      </div>
-                    </div>
-                    <CardDescription>
-                      Arrival window {result.best.arrivalWindow} · gate queue{" "}
-                      {result.best.queueMinutes} min · {result.best.distanceKm} km
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-4 md:grid-cols-2">
-                    <OptionPanel
-                      title={t("pooled", lang)}
-                      highlight
-                      icon={<Users className="h-4 w-4" />}
-                      rows={[
-                        ["Gross at mandi", rupees(result.best.grossPayout)],
-                        ["Freight share", `− ${rupees(result.best.pooled.freightShare)}`],
-                        ["Platform fee", `− ${rupees(result.best.pooled.platformFee)}`],
-                      ]}
-                      net={result.best.pooled.netPayout}
-                      footer={`${result.best.pooled.vehicle} · ${result.best.pooled.poolPartners} partners · ${result.best.pooled.utilisationPercent}% full · +${result.best.pooled.detourMinutes} min detour`}
-                      cta={t("confirmPooled", lang)}
-                      onConfirm={() => requestConfirm(result.best, "POOLED")}
-                    />
-                    <OptionPanel
-                      title={t("solo", lang)}
-                      icon={<Truck className="h-4 w-4" />}
-                      rows={[
-                        ["Gross at mandi", rupees(result.best.grossPayout)],
-                        ["Full freight", `− ${rupees(result.best.solo.freightCost)}`],
-                        ["Platform fee", `− ${rupees(result.best.solo.platformFee)}`],
-                      ]}
-                      net={result.best.solo.netPayout}
-                      footer={`${result.best.solo.vehicle} · ${result.best.solo.utilisationPercent}% full`}
-                      cta={t("confirmSolo", lang)}
-                      onConfirm={() => requestConfirm(result.best, "SOLO")}
-                    />
-                  </CardContent>
-                </Card>
+                {/* Primary: ENR Hero Card */}
+                <ENRHeroCard
+                  option={result.best}
+                  cropName={crop ? cropName(crop, lang) : ""}
+                  weightKg={weightKg}
+                  routerTier={result.routerTier}
+                  dieselPrice={result.dieselPrice}
+                  commissionPercent={result.commissionPercent}
+                  lang={lang}
+                  onConfirmPooled={() => requestConfirm(result.best, "POOLED")}
+                  onConfirmSolo={() => requestConfirm(result.best, "SOLO")}
+                  priceDataStatus={result.routerTier === "live" ? "LIVE" : "SIMULATED"}
+                />
+
+                {/* Explainability: Why this destination? */}
+                <ExplainabilityCard
+                  winner={result.best}
+                  allOptions={result.options}
+                  weightKg={weightKg}
+                />
+
+                {/* Demo delay simulation button */}
+                {demoMode && simulatedDelayMinutes === null && (
+                  <div className="flex gap-2">
+                    <Button
+                      id="simulate-delay-btn"
+                      variant="outline"
+                      className="text-xs"
+                      onClick={() => {
+                        setSimulatedDelayMinutes(180);
+                        setTimeout(() => calculate.mutate(), 0);
+                      }}
+                    >
+                      🕐 Simulate +3h Delay (Demo)
+                    </Button>
+                    <Button
+                      id="toggle-ivr-btn"
+                      variant="outline"
+                      className="text-xs"
+                      onClick={() => setShowVoiceIVR((v) => !v)}
+                    >
+                      🎙️ {showVoiceIVR ? "Hide" : "Show"} Voice / IVR
+                    </Button>
+                  </div>
+                )}
 
                 <div className="grid gap-4 md:grid-cols-3">
                   <Card>
@@ -537,8 +620,12 @@ function FarmerPortal() {
                         })),
                         {
                           label: result.best.mandiName,
-                          lat: reference.data?.mandis.find((m) => m.id === result.best.mandiId)?.lat ?? 0,
-                          lng: reference.data?.mandis.find((m) => m.id === result.best.mandiId)?.lng ?? 0,
+                          lat:
+                            reference.data?.mandis.find((m) => m.id === result.best.mandiId)?.lat ??
+                            0,
+                          lng:
+                            reference.data?.mandis.find((m) => m.id === result.best.mandiId)?.lng ??
+                            0,
                           kind: "mandi" as const,
                           detail: `Gate queue ${result.best.queueMinutes} min`,
                         },
@@ -547,8 +634,12 @@ function FarmerPortal() {
                         { lat: result.pickup.lat, lng: result.pickup.lng },
                         ...result.nearbyPool.members.map((m) => ({ lat: m.lat, lng: m.lng })),
                         {
-                          lat: reference.data?.mandis.find((m) => m.id === result.best.mandiId)?.lat ?? 0,
-                          lng: reference.data?.mandis.find((m) => m.id === result.best.mandiId)?.lng ?? 0,
+                          lat:
+                            reference.data?.mandis.find((m) => m.id === result.best.mandiId)?.lat ??
+                            0,
+                          lng:
+                            reference.data?.mandis.find((m) => m.id === result.best.mandiId)?.lng ??
+                            0,
                         },
                       ]}
                     />
@@ -557,9 +648,11 @@ function FarmerPortal() {
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base">All mandis ranked by net cash</CardTitle>
+                    <CardTitle className="text-base">
+                      All mandis ranked by Expected Net Realization
+                    </CardTitle>
                     <CardDescription>
-                      Highest headline price is rarely the highest take-home.
+                      Highest headline price is rarely the highest Expected Net Realization (ENR).
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -571,7 +664,9 @@ function FarmerPortal() {
                         <div>
                           <p className="font-medium">
                             {option.mandiName}{" "}
-                            <span className="text-xs text-muted-foreground">({option.mandiCode})</span>
+                            <span className="text-xs text-muted-foreground">
+                              ({option.mandiCode})
+                            </span>
                           </p>
                           <p className="text-xs text-muted-foreground">
                             ₹{option.pricePerKg}/kg · {option.distanceKm} km ·{" "}
@@ -592,7 +687,11 @@ function FarmerPortal() {
                             </p>
                             <p className="text-[11px] text-muted-foreground">pooled net</p>
                           </div>
-                          <Button size="sm" variant="outline" onClick={() => requestConfirm(option, "POOLED")}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => requestConfirm(option, "POOLED")}
+                          >
                             Choose
                           </Button>
                         </div>
@@ -603,7 +702,7 @@ function FarmerPortal() {
               </>
             )}
 
-            {email && (
+            {role && (
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base">{t("myShipments", lang)}</CardTitle>
@@ -613,7 +712,10 @@ function FarmerPortal() {
                     <p className="text-sm text-muted-foreground">No shipments yet.</p>
                   )}
                   {(shipments.data ?? []).map((row: any) => (
-                    <div key={row.id} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                    <div
+                      key={row.id}
+                      className="flex items-center justify-between rounded-md border p-3 text-sm"
+                    >
                       <span>
                         {row.crops?.name_en} · {Number(row.weight_kg)} kg → {row.mandis?.name}
                       </span>
@@ -708,7 +810,16 @@ interface OptionPanelProps {
   highlight?: boolean;
 }
 
-function OptionPanel({ title, icon, rows, net, footer, cta, onConfirm, highlight }: OptionPanelProps) {
+function OptionPanel({
+  title,
+  icon,
+  rows,
+  net,
+  footer,
+  cta,
+  onConfirm,
+  highlight,
+}: OptionPanelProps) {
   return (
     <div className={`rounded-lg border p-4 ${highlight ? "border-accent bg-accent/10" : ""}`}>
       <p className="flex items-center gap-2 text-sm font-semibold">
@@ -728,7 +839,11 @@ function OptionPanel({ title, icon, rows, net, footer, cta, onConfirm, highlight
         </div>
       </div>
       <p className="mt-2 text-[11px] text-muted-foreground">{footer}</p>
-      <Button className="field-tap mt-3 w-full" variant={highlight ? "default" : "outline"} onClick={onConfirm}>
+      <Button
+        className="field-tap mt-3 w-full"
+        variant={highlight ? "default" : "outline"}
+        onClick={onConfirm}
+      >
         {cta}
       </Button>
     </div>

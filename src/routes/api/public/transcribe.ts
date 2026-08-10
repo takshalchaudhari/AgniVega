@@ -44,7 +44,8 @@ export const Route = createFileRoute("/api/public/transcribe")({
         upstream.append("file", audio, `recording.${EXT[type] ?? "webm"}`);
         if (/^[a-z]{2}$/.test(language)) upstream.append("language", language);
 
-        const endpoint = process.env["AI_TRANSCRIBE_URL"] || "https://api.openai.com/v1/audio/transcriptions";
+        const endpoint =
+          process.env["AI_TRANSCRIBE_URL"] || "https://api.openai.com/v1/audio/transcriptions";
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { Authorization: `Bearer ${key}` },

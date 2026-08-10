@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { flushQueue, getQueue, subscribeQueue, watchConnectivity, type QueuedTransaction } from "@/lib/offline/queue";
+import {
+  flushQueue,
+  getQueue,
+  subscribeQueue,
+  watchConnectivity,
+  type QueuedTransaction,
+} from "@/lib/offline/queue";
 
 /** Shows connectivity state and any transactions waiting to sync. */
 export function OfflineTray() {
@@ -36,7 +42,11 @@ export function OfflineTray() {
   return (
     <div className="fixed bottom-4 left-4 z-50 w-[20rem] max-w-[92vw] rounded-lg border border-border bg-card/95 p-3 text-xs shadow-xl backdrop-blur">
       <div className="flex items-center gap-2 font-semibold">
-        {online ? <UploadCloud className="h-4 w-4" /> : <CloudOff className="h-4 w-4 text-destructive" />}
+        {online ? (
+          <UploadCloud className="h-4 w-4" />
+        ) : (
+          <CloudOff className="h-4 w-4 text-destructive" />
+        )}
         {online ? "Pending sync" : "Offline mode"}
       </div>
       <p className="mt-1 text-muted-foreground">
@@ -49,7 +59,9 @@ export function OfflineTray() {
           {queue.slice(0, 4).map((item) => (
             <li key={item.id} className="flex items-center justify-between gap-2">
               <span className="truncate">{item.label}</span>
-              <span className="text-muted-foreground">{item.attempts > 0 ? `retry ${item.attempts}` : "queued"}</span>
+              <span className="text-muted-foreground">
+                {item.attempts > 0 ? `retry ${item.attempts}` : "queued"}
+              </span>
             </li>
           ))}
         </ul>

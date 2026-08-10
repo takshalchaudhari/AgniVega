@@ -23,7 +23,10 @@ export class AppErrorBoundary extends Component<Props, State> {
 
   override componentDidCatch(error: Error, info: ErrorInfo) {
     try {
-      captureError(error, { boundary: "app_error_boundary", componentStack: info.componentStack ?? "" });
+      captureError(error, {
+        boundary: "app_error_boundary",
+        componentStack: info.componentStack ?? "",
+      });
     } catch {
       /* monitoring must never mask the original error */
     }

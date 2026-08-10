@@ -44,6 +44,7 @@ export interface ComputeInput {
   commissionPercent: number;
   fuel: FuelRates;
   demoMode: boolean;
+  delayMinutes: number;
 }
 
 function arrivalWindow(minutes: number): string {
@@ -77,11 +78,18 @@ export async function computeOptions(input: ComputeInput): Promise<CalculationRe
     /* ---- Solo scenario ---- */
     const soloVehicle = recommendVehicleFromTypes(input.vehicles, input.weightKg);
     const soloFreight = tripFreightCost(soloVehicle, soloKm, input.fuel);
+    const soloRisk = spoilageRisk(
+      input.spoilageHours,
+      soloKm,
+      mandi.pricePerKg * input.weightKg,
+      mandi.queueMinutes + input.delayMinutes,
+    );
     const soloEarnings = itemiseEarnings(
       mandi.pricePerKg,
       input.weightKg,
       soloFreight,
       input.commissionPercent,
+      soloRisk.valueAtRisk,
     );
 
     /* ---- Pooled scenario: sequence every pickup, then the mandi ---- */
@@ -104,24 +112,27 @@ export async function computeOptions(input: ComputeInput): Promise<CalculationRe
       ...input.partners.map((p) => ({
         id: p.id,
         weightKg: p.weightKg,
-        distanceKm: matrix.distancesKm[partnerOffset + input.partners.indexOf(p)]?.[mandiIdx] ?? soloKm,
+        distanceKm:
+          matrix.distancesKm[partnerOffset + input.partners.indexOf(p)]?.[mandiIdx] ?? soloKm,
       })),
     ];
     const shares = proportionalShares(pooledFreight, legs);
     const myShare = shares[input.requestId] ?? pooledFreight;
-    const pooledEarnings = itemiseEarnings(
-      mandi.pricePerKg,
-      input.weightKg,
-      myShare,
-      input.commissionPercent,
-    );
 
     const detourMinutes = Math.max(0, pooledMin - soloMin);
     const risk = spoilageRisk(
       input.spoilageHours,
       pooledKm,
-      pooledEarnings.grossPayout,
-      mandi.queueMinutes,
+      mandi.pricePerKg * input.weightKg,
+      mandi.queueMinutes + input.delayMinutes,
+    );
+
+    const pooledEarnings = itemiseEarnings(
+      mandi.pricePerKg,
+      input.weightKg,
+      myShare,
+      input.commissionPercent,
+      risk.valueAtRisk,
     );
 
     const soloLitres =
@@ -136,10 +147,11 @@ export async function computeOptions(input: ComputeInput): Promise<CalculationRe
       pricePerKg: mandi.pricePerKg,
       grossPayout: Math.round(pooledEarnings.grossPayout),
       queueMinutes: mandi.queueMinutes,
-      arrivalWindow: arrivalWindow(pooledMin + mandi.queueMinutes),
+      arrivalWindow: arrivalWindow(pooledMin + mandi.queueMinutes + input.delayMinutes),
       pooled: {
         freightShare: Math.round(myShare),
         platformFee: Math.round(pooledEarnings.platformFee),
+        spoilageLoss: Math.round(pooledEarnings.spoilageLoss),
         netPayout: Math.round(pooledEarnings.netPayout),
         vehicle: poolVehicle.name,
         poolPartners: input.partners.length,
@@ -149,6 +161,7 @@ export async function computeOptions(input: ComputeInput): Promise<CalculationRe
       solo: {
         freightCost: Math.round(soloFreight),
         platformFee: Math.round(soloEarnings.platformFee),
+        spoilageLoss: Math.round(soloEarnings.spoilageLoss),
         netPayout: Math.round(soloEarnings.netPayout),
         vehicle: soloVehicle.name,
         utilisationPercent: Math.round(utilisation(input.weightKg, soloVehicle.payloadKg) * 100),
