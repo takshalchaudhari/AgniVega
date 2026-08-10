@@ -100,7 +100,11 @@ export function DemoControlPanel() {
             <Button
               onClick={() => {
                 if (!demo) setDemo(true);
-                sim.jobs.length ? resumeSimulation() : startSimulation({ jobs: 6 });
+                if (sim.jobs.length) {
+                  resumeSimulation();
+                } else {
+                  startSimulation({ jobs: 6 });
+                }
                 toast.success("Shift simulation running");
               }}
             >

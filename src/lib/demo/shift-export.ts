@@ -70,7 +70,7 @@ export function shiftLogHtml(rows: ShiftLogRow[] = shiftLog()): string {
 <h1>Smart Krishi-Yatra AI — shift assignment log</h1>
 <p class="meta">Generated ${escapeHtml(new Date().toLocaleString())} · ${rows.length} jobs</p>
 <table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
-<script>window.onload = () => { window.print(); };<\/script>
+<script>window.onload = () => { window.print(); };</script>
 </body></html>`;
 }
 
@@ -142,7 +142,7 @@ export function conflictHtml(rows: ConflictRow[] = conflictLog()): string {
 <h1>Smart Krishi-Yatra AI — assignment conflicts</h1>
 <p class="meta">Generated ${escapeHtml(new Date().toLocaleString())} · ${blocked} blocked · ${rows.length - blocked} advisory</p>
 <table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
-<script>window.onload = () => { window.print(); };<\/script>
+<script>window.onload = () => { window.print(); };</script>
 </body></html>`;
 }
 
