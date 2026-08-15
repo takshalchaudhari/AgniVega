@@ -1,7 +1,24 @@
-// Server-side Supabase client with service role key or resilient fallback.
-// Use this for operations in server functions and server routes.
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+
+// Provide global WebSocket stub to silence Supabase Node.js runtime warning
+if (typeof globalThis.WebSocket === 'undefined') {
+  (globalThis as any).WebSocket = class NodeWebSocketStub {
+    static readonly CONNECTING = 0;
+    static readonly OPEN = 1;
+    static readonly CLOSING = 2;
+    static readonly CLOSED = 3;
+    readonly readyState = 1;
+    onopen = null;
+    onclose = null;
+    onerror = null;
+    onmessage = null;
+    send() {}
+    close() {}
+    addEventListener() {}
+    removeEventListener() {}
+  };
+}
 
 const DEFAULT_SUPABASE_URL = "https://vagpytfjcbrpufdveklg.supabase.co";
 const DEFAULT_SUPABASE_KEY = "sb_publishable_JUF_s2bc-OFZTVodDubiwg_nKXdI2VT";
