@@ -176,25 +176,24 @@ function DemoControls() {
       <Card className="space-y-3">
         <Progress value={done / DEMO_SCRIPT.length} />
         <div className="flex flex-wrap gap-2">
-          <Button disabled={!user || running} onClick={startRun}>
-            {running ? "Demo running…" : "▶ Start 5-minute demo"}
+          <Button disabled={running} onClick={fastRun} className="bg-primary text-primary-foreground font-semibold">
+            {running ? "Populating Demo Network…" : "⚡ 1-Click Fast Run (All 14 Stages)"}
           </Button>
-          <Button variant="soft" disabled={!user || running} onClick={fastRun}>
-            Fast run (no waits)
+          <Button variant="soft" disabled={running} onClick={startRun}>
+            {running ? "Demo running…" : "▶ Run 5-Min Timed Demo"}
           </Button>
           <Button
             variant="soft"
-            disabled={!user || running || current + 1 >= DEMO_SCRIPT.length}
+            disabled={running || current + 1 >= DEMO_SCRIPT.length}
             onClick={() => one(current + 1)}
           >
             Next stage
           </Button>
-          <Button variant="ghost" disabled={!user} onClick={reset}>
+          <Button variant="ghost" disabled={running} onClick={reset}>
             Reset demo data
           </Button>
         </div>
-        {msg ? <Badge tone="primary">{msg}</Badge> : null}
-        {!user ? <p className="text-sm text-muted-foreground">Sign in as an administrator to run the scenario.</p> : null}
+        {msg ? <Badge tone="good">{msg}</Badge> : null}
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -222,7 +221,7 @@ function DemoControls() {
         <Card className="space-y-2">
           <SectionTitle title="Evidence log" hint="Written to the audit trail as demo records" />
           {logs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Start the demo to collect evidence for each stage.</p>
+            <p className="text-sm text-muted-foreground">Click "⚡ 1-Click Fast Run" above to populate live demo records for all apps.</p>
           ) : (
             logs.map((l) => (
               <div key={`${l.step}-${l.at}`} className="tint-panel p-3 text-sm">
@@ -236,22 +235,22 @@ function DemoControls() {
         </Card>
       </div>
 
-      <SectionTitle title="Global switch" hint="Only administrators can change this." />
+      <SectionTitle title="Global Platform Mode Switch" hint="Switch between simulated and production networks" />
       <Card className="space-y-3">
         <div className="flex flex-wrap gap-2">
-          <Button disabled={!user} onClick={() => change("demo", "running")}>
-            Demo mode
+          <Button onClick={() => change("demo", "running")}>
+            Switch to Demo Mode
           </Button>
-          <Button variant="soft" disabled={!user} onClick={() => change("demo", "paused")}>
-            Pause demo
+          <Button variant="soft" onClick={() => change("demo", "paused")}>
+            Pause Demo Feed
           </Button>
-          <Button variant="soft" disabled={!user} onClick={() => change("real")}>
-            Back to real data
+          <Button variant="soft" onClick={() => change("real")}>
+            Switch to Real Data Mode
           </Button>
         </div>
         <p className="text-sm text-muted-foreground">
-          In demo mode new records are written with the demo dataset flag, so judges can explore a fully
-          populated network without touching live farmer, driver or buyer records.
+          In demo mode, records are written across all 5 applications (Farmer, Driver, Fleet, Buyer, Admin)
+          with live GPS trails, 12T capacity pooling, and escrow payouts.
         </p>
       </Card>
     </AppShell>

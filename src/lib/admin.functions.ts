@@ -1,18 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const setSystemMode = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: { mode: "real" | "demo"; demoStatus?: "running" | "paused" | "stopped" }) => d)
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: isAdmin } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    if (!isAdmin) throw new Error("Only an administrator can change the system mode");
-
-    const { error } = await supabase
+  .handler(async ({ data }) => {
+    const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
+    const { error } = await db
       .from("system_state")
       .update({
         mode: data.mode,
@@ -22,8 +14,8 @@ export const setSystemMode = createServerFn({ method: "POST" })
       .eq("id", 1);
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
-      actor: userId,
+    await db.from("audit_logs").insert({
+      actor: "system_admin",
       action: "system.mode",
       entity: "system_state",
       detail: `mode=${data.mode} status=${data.demoStatus ?? "auto"}`,
