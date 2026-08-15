@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" width="900" height="260" role="img" aria-label="Animated 18 tonne allocation into 12 t and 6 t trucks">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1220"/><stop offset="100%" stop-color="#06281a"/>
+    </linearGradient>
+    <style>
+      text{font-family:"Segoe UI",Inter,system-ui,sans-serif}
+      .fill12{animation:f12 4s ease-in-out infinite}
+      @keyframes f12{0%{height:0;y:170}45%,100%{height:60;y:110}}
+      .fill6{animation:f6 4s ease-in-out infinite}
+      @keyframes f6{0%{height:0;y:170}20%{height:0;y:170}60%,100%{height:30;y:140}}
+      .flow{stroke-dasharray:8 10;animation:fl 1.2s linear infinite}
+      @keyframes fl{to{stroke-dashoffset:-36}}
+      .blink{animation:bk 4s ease-in-out infinite}
+      @keyframes bk{0%,55%{opacity:0}70%,100%{opacity:1}}
+    </style>
+  </defs>
+  <rect width="900" height="260" rx="14" fill="url(#g1)"/>
+  <text x="30" y="42" fill="#7ef2a8" font-size="20" font-weight="700">Best-fit allocation · hard 12 t legal cap</text>
+
+  <g transform="translate(40,90)">
+    <rect width="150" height="90" rx="10" fill="#123c2a" stroke="#39d98a"/>
+    <text x="20" y="38" fill="#d7ffe9" font-size="22" font-weight="700">18 t</text>
+    <text x="20" y="62" fill="#8ad3ae" font-size="13">tomato · grade A</text>
+  </g>
+  <path class="flow" d="M195 120 H 300" stroke="#7ef2a8" stroke-width="3" fill="none"/>
+  <path class="flow" d="M195 135 H 300 V 175" stroke="#38bdf8" stroke-width="3" fill="none"/>
+
+  <g transform="translate(320,60)">
+    <rect width="180" height="110" rx="10" fill="#0d2b1e" stroke="#39d98a"/>
+    <rect x="14" y="110" width="60" height="0" class="fill12" fill="#39d98a" opacity=".85"/>
+    <text x="90" y="46" fill="#d7ffe9" font-size="18" font-weight="700">MH12-AB-4412</text>
+    <text x="90" y="70" fill="#8ad3ae" font-size="14">12.0 / 12 t · 100%</text>
+    <text x="90" y="92" fill="#6fb894" font-size="12">reefer · Pune hub</text>
+  </g>
+  <g transform="translate(320,180)">
+    <rect width="180" height="66" rx="10" fill="#0d2233" stroke="#38bdf8"/>
+    <rect x="14" y="66" width="60" height="0" class="fill6" fill="#38bdf8" opacity=".8"/>
+    <text x="90" y="28" fill="#dff2ff" font-size="16" font-weight="700">MH14-CD-8890</text>
+    <text x="90" y="50" fill="#8fd6f5" font-size="13">6.0 / 9 t · 67%</text>
+  </g>
+
+  <g class="blink" transform="translate(560,86)">
+    <rect width="300" height="120" rx="12" fill="#08281c" stroke="#7ef2a8"/>
+    <text x="20" y="34" fill="#7ef2a8" font-size="15" font-weight="700">Pooled settlement</text>
+    <text x="20" y="62" fill="#d7ffe9" font-size="14">Freight ₹18,540 → ₹17,505</text>
+    <text x="20" y="86" fill="#7ef2a8" font-size="14">Pooling saving ₹1,035</text>
+    <text x="20" y="106" fill="#6fb894" font-size="12">ETA 2 h 10 m · spoilage risk LOW</text>
+  </g>
+</svg>
