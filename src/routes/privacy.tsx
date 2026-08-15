@@ -12,9 +12,9 @@ export const Route = createFileRoute("/privacy")({
           "Privacy Policy and DPDP Act 2023 compliance disclosures for Smart Krishi-Yatra agri-logistics operating system.",
       },
       { property: "og:title", content: "Privacy Policy — Smart Krishi-Yatra" },
-      { property: "og:url", content: "https://smartkrishiyatra.noxverse.in/privacy" },
+      { property: "og:url", content: "https://smartkrishiyatraa.noxverse.in/privacy" },
     ],
-    links: [{ rel: "canonical", href: "https://smartkrishiyatra.noxverse.in/privacy" }],
+    links: [{ rel: "canonical", href: "https://smartkrishiyatraa.noxverse.in/privacy" }],
   }),
   component: PrivacyPage,
 });
@@ -46,7 +46,7 @@ function PrivacyPage() {
           </span>
           <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">Privacy Policy</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Effective Date: August 15, 2026 | Domain: smartkrishiyatra.noxverse.in | Organization: Noxverse
+            Effective Date: August 15, 2026 | Domain: smartkrishiyatraa.noxverse.in | Organization: Noxverse
           </p>
         </div>
 
@@ -117,7 +117,7 @@ function PrivacyPage() {
             <div className="rounded-lg bg-muted p-3 font-mono text-xs">
               <p>Grievance Officer: Data Protection Desk</p>
               <p>Email: grievance@noxverse.in / support@noxverse.in</p>
-              <p>Portal: https://smartkrishiyatra.noxverse.in/contact</p>
+              <p>Portal: https://smartkrishiyatraa.noxverse.in/contact</p>
             </div>
           </Card>
         </div>

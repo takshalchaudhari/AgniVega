@@ -9,17 +9,15 @@ export const ROLES: Record<
     app: string;
     tagline: string;
     emoji: string;
-    androidId: string;
     home: string;
     nav: NavItem[];
   }
 > = {
   farmer: {
     key: "farmer",
-    app: "Krishi-Yatra Farmer",
+    app: "Smart Krishi Farmer",
     tagline: "Sell your harvest at the right mandi, at the right price.",
     emoji: "🌾",
-    androidId: "in.noxverse.sky.farmer",
     home: "/farmer",
     nav: [
       { to: "/farmer", label: "Home", icon: "home" },
@@ -31,10 +29,9 @@ export const ROLES: Record<
   },
   driver: {
     key: "driver",
-    app: "Krishi-Yatra Driver",
+    app: "Smart Krishi Driver",
     tagline: "Find loads, run the trip, get paid.",
     emoji: "🚛",
-    androidId: "in.noxverse.sky.driver",
     home: "/driver",
     nav: [
       { to: "/driver", label: "Duty", icon: "home" },
@@ -44,10 +41,9 @@ export const ROLES: Record<
   },
   fleet: {
     key: "fleet",
-    app: "Krishi-Yatra Fleet",
+    app: "Smart Krishi Fleet",
     tagline: "Vehicles, drivers, utilisation and maintenance in one board.",
     emoji: "🛠️",
-    androidId: "in.noxverse.sky.fleet",
     home: "/fleet",
     nav: [
       { to: "/fleet", label: "Overview", icon: "home" },
@@ -58,10 +54,9 @@ export const ROLES: Record<
   },
   buyer: {
     key: "buyer",
-    app: "Krishi-Yatra Buyer",
+    app: "Smart Krishi Buyer",
     tagline: "Buy graded produce straight from the farm gate.",
     emoji: "🛒",
-    androidId: "in.noxverse.sky.buyer",
     home: "/buyer",
     nav: [
       { to: "/buyer", label: "Market", icon: "store" },
@@ -70,10 +65,9 @@ export const ROLES: Record<
   },
   admin: {
     key: "admin",
-    app: "Krishi-Yatra Control Tower",
+    app: "Smart Krishi Control Tower",
     tagline: "Whole-network operations, incidents and system mode.",
     emoji: "🛰️",
-    androidId: "in.noxverse.sky.admin",
     home: "/admin",
     nav: [
       { to: "/admin", label: "Control tower", icon: "radar" },

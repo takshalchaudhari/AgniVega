@@ -24,9 +24,9 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:url", content: "https://smartkrishiyatra.noxverse.in/" },
+      { property: "og:url", content: "https://smartkrishiyatraa.noxverse.in/" },
     ],
-    links: [{ rel: "canonical", href: "https://smartkrishiyatra.noxverse.in/" }],
+    links: [{ rel: "canonical", href: "https://smartkrishiyatraa.noxverse.in/" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -36,7 +36,7 @@ export const Route = createFileRoute("/")({
             {
               "@type": "Organization",
               name: "Smart Krishi-Yatra",
-              url: "https://smartkrishiyatra.noxverse.in",
+              url: "https://smartkrishiyatraa.noxverse.in",
               description:
                 "Agri-logistics platform connecting farmers, drivers, fleet owners, buyers and operators for farm-to-mandi transport.",
               areaServed: "IN",
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/")({
             {
               "@type": "WebSite",
               name: "Smart Krishi-Yatra",
-              url: "https://smartkrishiyatra.noxverse.in",
+              url: "https://smartkrishiyatraa.noxverse.in",
               description:
                 "Plan crop pickups, pool trucks under the 12-tonne limit, track every trip live and follow mandi prices.",
               inLanguage: ["en", "hi", "mr"],
@@ -128,7 +128,6 @@ function Landing() {
                   <div className="text-3xl">{r.emoji}</div>
                   <h3 className="mt-3 text-lg font-semibold">{r.app}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{r.tagline}</p>
-                  <p className="mt-3 font-mono text-[11px] text-muted-foreground">{r.androidId}</p>
                 </Card>
               </Link>
             ))}

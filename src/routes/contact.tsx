@@ -13,9 +13,9 @@ export const Route = createFileRoute("/contact")({
           "Official contact channels, technical support, and statutory grievance redressal officer information for Smart Krishi-Yatra (Noxverse).",
       },
       { property: "og:title", content: "Contact & Statutory Grievance — Smart Krishi-Yatra" },
-      { property: "og:url", content: "https://smartkrishiyatra.noxverse.in/contact" },
+      { property: "og:url", content: "https://smartkrishiyatraa.noxverse.in/contact" },
     ],
-    links: [{ rel: "canonical", href: "https://smartkrishiyatra.noxverse.in/contact" }],
+    links: [{ rel: "canonical", href: "https://smartkrishiyatraa.noxverse.in/contact" }],
   }),
   component: ContactPage,
 });
@@ -74,8 +74,8 @@ function ContactPage() {
                 <p>Maharashtra, India</p>
                 <p className="mt-2">
                   <strong>Domain:</strong>{" "}
-                  <a href="https://smartkrishiyatra.noxverse.in" className="text-primary underline">
-                    smartkrishiyatra.noxverse.in
+                  <a href="https://smartkrishiyatraa.noxverse.in" className="text-primary underline">
+                    smartkrishiyatraa.noxverse.in
                   </a>
                 </p>
               </div>

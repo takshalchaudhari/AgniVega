@@ -32,8 +32,8 @@ export function AppShell({
             {meta.emoji}
           </Link>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{meta.app}</p>
-            <p className="truncate text-xs text-muted-foreground">{meta.androidId}</p>
+            <p className="truncate text-sm font-semibold">{t(meta.app)}</p>
+            <p className="truncate text-xs text-muted-foreground">{t(meta.tagline)}</p>
           </div>
           <select
             aria-label="Language"

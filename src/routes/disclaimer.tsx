@@ -12,9 +12,9 @@ export const Route = createFileRoute("/disclaimer")({
           "Agri-market disclosures, APMC mandi pricing disclaimers, transit spoilage estimation notes, and intermediary terms for Smart Krishi-Yatra.",
       },
       { property: "og:title", content: "Mandi Disclosures & Disclaimer — Smart Krishi-Yatra" },
-      { property: "og:url", content: "https://smartkrishiyatra.noxverse.in/disclaimer" },
+      { property: "og:url", content: "https://smartkrishiyatraa.noxverse.in/disclaimer" },
     ],
-    links: [{ rel: "canonical", href: "https://smartkrishiyatra.noxverse.in/disclaimer" }],
+    links: [{ rel: "canonical", href: "https://smartkrishiyatraa.noxverse.in/disclaimer" }],
   }),
   component: DisclaimerPage,
 });
@@ -48,7 +48,7 @@ function DisclaimerPage() {
             Mandi Disclosures & Disclaimer
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Platform: smartkrishiyatra.noxverse.in | Team Agnivega | Noxverse
+            Platform: smartkrishiyatraa.noxverse.in | Team Agnivega | Noxverse
           </p>
         </div>
 

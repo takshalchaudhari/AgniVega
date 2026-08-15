@@ -116,6 +116,32 @@ function AuthPage() {
         <Button variant="soft" className="mt-3 w-full" onClick={google}>
           Continue with Google
         </Button>
+
+        <div className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-3 text-center">
+          <p className="text-xs font-semibold text-primary uppercase tracking-wide">
+            ⚡ Quick Judge & Evaluator Access
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Skip sign-up to directly inspect deterministic live trips and operations.
+          </p>
+          <div className="mt-2.5 flex gap-2">
+            <button
+              type="button"
+              onClick={() => void navigate({ to: "/admin/demo" })}
+              className="flex-1 rounded-lg bg-primary py-2 text-xs font-semibold text-primary-foreground hover:opacity-90"
+            >
+              🚀 14-Stage Demo
+            </button>
+            <button
+              type="button"
+              onClick={() => void navigate({ to: "/admin" })}
+              className="flex-1 rounded-lg border border-border bg-background py-2 text-xs font-semibold text-foreground hover:bg-muted"
+            >
+              Control Tower
+            </button>
+          </div>
+        </div>
+
         {msg ? <p className="mt-3 text-sm text-destructive">{msg}</p> : null}
         <button
           className="mt-4 w-full text-sm text-muted-foreground underline"

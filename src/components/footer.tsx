@@ -17,12 +17,12 @@ export function Footer() {
             <p className="mt-3 text-[11px] text-muted-foreground">
               Domain:{" "}
               <a
-                href="https://smartkrishiyatra.noxverse.in"
+                href="https://smartkrishiyatraa.noxverse.in"
                 className="font-mono text-primary underline underline-offset-2"
                 target="_blank"
                 rel="noreferrer"
               >
-                smartkrishiyatra.noxverse.in
+                smartkrishiyatraa.noxverse.in
               </a>
             </p>
             <p className="mt-1 text-[11px] text-muted-foreground">
@@ -114,8 +114,8 @@ export function Footer() {
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border/60 pt-6 text-center text-xs text-muted-foreground sm:flex-row sm:text-left">
           <p>
             © {new Date().getFullYear()} Smart Krishi-Yatra (
-            <a href="https://smartkrishiyatra.noxverse.in" className="text-primary hover:underline">
-              smartkrishiyatra.noxverse.in
+            <a href="https://smartkrishiyatraa.noxverse.in" className="text-primary hover:underline">
+              smartkrishiyatraa.noxverse.in
             </a>
             ). All rights reserved.
           </p>

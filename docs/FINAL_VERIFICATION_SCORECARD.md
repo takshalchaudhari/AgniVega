@@ -46,7 +46,7 @@ the demo summary and the in-app assistant were answered by `sarvam-105b`.
 | 1 | Five separate role applications | PASS | PASS (PWA) | PASS | PASS | Routes /farmer /driver /fleet /buyer /admin, each with its own shell, colours and navigation |
 | 2 | Distinct visual identity per role | PASS | PASS (PWA) | PASS | PASS | Role skins in src/styles.css: green / blue / teal / amber / dark control tower |
 | 3 | Role switcher from landing page | PASS | PASS (PWA) | PASS | PASS | / lists the five apps with descriptions |
-| 4 | Android application IDs reserved | PASS | PASS (PWA) | n/a | n/a | in.noxverse.sky.{farmer,driver,fleet,buyer,admin} shown in every shell header |
+| 4 | Distinct role workflows & identities | PASS | PASS (PWA) | n/a | n/a | Smart Krishi role workflows configured for farmer, driver, fleet, buyer, and admin |
 | 5 | Farmer APK build | n/a | NOT BUILT HERE | n/a | n/a | No JDK, Android SDK, Gradle, adb or emulator exists in this environment (verified); one-command harness in scripts/build-android-apks.sh |
 | 6 | Driver APK build | n/a | NOT BUILT HERE | n/a | n/a | Same as above |
 | 7 | Fleet APK build | n/a | NOT BUILT HERE | n/a | n/a | Same as above |

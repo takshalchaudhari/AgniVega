@@ -12,9 +12,9 @@ export const Route = createFileRoute("/terms")({
           "Terms of Service governing the use of Smart Krishi-Yatra agri-logistics OS, capacity pooling, trip allocations, and marketplace transactions.",
       },
       { property: "og:title", content: "Terms of Service — Smart Krishi-Yatra" },
-      { property: "og:url", content: "https://smartkrishiyatra.noxverse.in/terms" },
+      { property: "og:url", content: "https://smartkrishiyatraa.noxverse.in/terms" },
     ],
-    links: [{ rel: "canonical", href: "https://smartkrishiyatra.noxverse.in/terms" }],
+    links: [{ rel: "canonical", href: "https://smartkrishiyatraa.noxverse.in/terms" }],
   }),
   component: TermsPage,
 });
@@ -46,7 +46,7 @@ function TermsPage() {
           </span>
           <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">Terms of Service</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Last Updated: August 15, 2026 | Effective Date: August 15, 2026 | Platform: smartkrishiyatra.noxverse.in
+            Last Updated: August 15, 2026 | Effective Date: August 15, 2026 | Platform: smartkrishiyatraa.noxverse.in
           </p>
         </div>
 
@@ -55,8 +55,8 @@ function TermsPage() {
             <h2 className="text-lg font-semibold text-foreground">1. Introduction & Acceptance</h2>
             <p className="text-muted-foreground">
               Welcome to <strong>Smart Krishi-Yatra</strong> (accessible via{" "}
-              <a href="https://smartkrishiyatra.noxverse.in" className="text-primary underline">
-                smartkrishiyatra.noxverse.in
+              <a href="https://smartkrishiyatraa.noxverse.in" className="text-primary underline">
+                smartkrishiyatraa.noxverse.in
               </a>
               ), an agri-logistics operating system developed and managed by Team Agnivega / Noxverse.
               By registering, accessing, or utilizing any of our five multi-tenant role modules (Farmer Portal,
