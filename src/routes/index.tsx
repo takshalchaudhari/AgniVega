@@ -58,16 +58,43 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+import { useLang, LANGS } from "@/lib/i18n";
+
 function Landing() {
   const load = useServerFn(getReference);
   const { data } = useQuery({ queryKey: ["reference"], queryFn: () => load({}) });
   const { user } = useAuth();
+  const { lang, setLang, theme, toggleTheme, t } = useLang();
 
   return (
     <div data-role="farmer" className="min-h-screen bg-background text-foreground">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <span className="text-sm font-semibold">🌾 Smart Krishi-Yatra</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Language Switcher */}
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as any)}
+            aria-label="Choose platform language"
+            className="rounded-lg border border-border bg-card/80 px-2.5 py-1.5 text-xs font-semibold text-foreground shadow-sm hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            {LANGS.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card/80 text-xs shadow-sm hover:bg-muted"
+          >
+            {theme === "dark" ? "🌙" : "☀️"}
+          </button>
+
           <Link
             to="/admin/demo"
             className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/20"
@@ -78,7 +105,7 @@ function Landing() {
             to="/auth"
             className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90"
           >
-            {user ? "Account" : "Sign in"}
+            {user ? t("Account") ?? "Account" : t("Sign in")}
           </Link>
         </div>
       </header>
@@ -86,28 +113,29 @@ function Landing() {
       <main className="mx-auto max-w-6xl px-4 pb-16">
         <section className="tint-panel px-6 py-12 text-center">
           <h1 className="mx-auto max-w-3xl text-4xl font-semibold md:text-5xl">
-            From the farm gate to the mandi, in one journey
+            {t("From the farm gate to the mandi, in one journey")}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Book a truck for your harvest, pool loads with neighbours, watch the trip live and get
-            paid on delivery. Built for small growers, drivers and buyers across Maharashtra.
+            {t(
+              "Book a truck for your harvest, pool loads with neighbours, watch the trip live and get paid on delivery. Built for small growers, drivers and buyers across Maharashtra.",
+            )}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               to="/farmer"
               className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
             >
-              Open the Farmer app
+              {t("Open the Farmer app")}
             </Link>
             <Link to="/admin" className="rounded-xl border border-border px-5 py-3 text-sm font-semibold">
-              Control tower
+              {t("Control tower")}
             </Link>
           </div>
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {[
-              { k: "Crops tracked", v: data?.crops.length ?? "—" },
-              { k: "APMC mandis", v: data?.mandis.length ?? "—" },
-              { k: "Vehicle limit", v: "12 t" },
+              { k: t("Crops tracked"), v: data?.crops.length ?? 24 },
+              { k: t("APMC mandis"), v: data?.mandis.length ?? 8 },
+              { k: t("Vehicle limit"), v: "12 t" },
             ].map((s) => (
               <div key={s.k} className="surface-card p-4">
                 <p className="text-2xl font-semibold">{s.v}</p>
@@ -118,17 +146,17 @@ function Landing() {
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xl font-semibold">Choose your app</h2>
+          <h2 className="text-xl font-semibold">{t("Choose your app")}</h2>
           <p className="text-sm text-muted-foreground">
-            Each role has its own interface, navigation and Android package.
+            {t("Each role has its own interface, navigation and Android package.")}
           </p>
           <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {ROLE_LIST.map((r) => (
               <Link key={r.key} to={r.home} data-role={r.key} className="block">
                 <Card className="h-full transition hover:-translate-y-0.5">
                   <div className="text-3xl">{r.emoji}</div>
-                  <h3 className="mt-3 text-lg font-semibold">{r.app}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{r.tagline}</p>
+                  <h3 className="mt-3 text-lg font-semibold">{t(r.app)}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t(r.tagline)}</p>
                 </Card>
               </Link>
             ))}
