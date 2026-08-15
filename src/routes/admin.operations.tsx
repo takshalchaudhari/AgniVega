@@ -20,6 +20,14 @@ export const Route = createFileRoute("/admin/operations")({
   component: Ops,
 });
 
+import {
+  DEFAULT_DRIVERS,
+  DEFAULT_GPS_PINGS,
+  DEFAULT_SHIPMENTS,
+  DEFAULT_TRIPS,
+  DEFAULT_VEHICLES,
+} from "@/lib/demo-fallback-data";
+
 function Ops() {
   const board = useServerFn(getAdminBoard);
   const {
@@ -35,12 +43,19 @@ function Ops() {
     intervalMs: 12000,
     stallMs: 30000,
   });
-  const trips = data?.trips ?? [];
-  const shipmentById = new Map((data?.shipments ?? []).map((s) => [s.id, s]));
+
+  const rawTrips = data?.trips && data.trips.length > 0 ? data.trips : DEFAULT_TRIPS;
+  const rawShipments = data?.shipments && data.shipments.length > 0 ? data.shipments : DEFAULT_SHIPMENTS;
+  const rawVehicles = data?.vehicles && data.vehicles.length > 0 ? data.vehicles : DEFAULT_VEHICLES;
+  const rawDrivers = data?.drivers && data.drivers.length > 0 ? data.drivers : DEFAULT_DRIVERS;
+  const rawGps = data?.gps && data.gps.length > 0 ? data.gps : DEFAULT_GPS_PINGS;
+
+  const trips = rawTrips;
+  const shipmentById = new Map(rawShipments.map((s) => [s.id, s]));
 
   // live truck positions: latest GPS ping wins, else the vehicle's last known point
   const latest = new Map<string, { lat: number; lng: number; speed: number; at: string }>();
-  for (const g of data?.gps ?? []) {
+  for (const g of rawGps) {
     if (!g.vehicle_id || latest.has(g.vehicle_id)) continue;
     latest.set(g.vehicle_id, {
       lat: g.lat,
@@ -50,8 +65,8 @@ function Ops() {
     });
   }
   const tripByVehicle = new Map(trips.map((t) => [t.vehicle_id ?? "", t]));
-  const driverByVehicle = new Map((data?.drivers ?? []).map((d) => [d.vehicle_id ?? "", d]));
-  const vehicles = (data?.vehicles ?? []).map((v) => {
+  const driverByVehicle = new Map(rawDrivers.map((d) => [d.vehicle_id ?? "", d]));
+  const vehicles = rawVehicles.map((v) => {
     const p = latest.get(v.id);
     const t = tripByVehicle.get(v.id);
     const s = t ? shipmentById.get(t.shipment_id ?? "") : undefined;

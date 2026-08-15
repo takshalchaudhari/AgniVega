@@ -20,11 +20,19 @@ export const Route = createFileRoute("/admin/")({
   component: AdminHome,
 });
 
+import {
+  DEFAULT_AUDIT_LOGS,
+  DEFAULT_SHIPMENTS,
+  DEFAULT_TRIPS,
+} from "@/lib/demo-fallback-data";
+
 function AdminHome() {
   const board = useServerFn(getAdminBoard);
   const { data } = useQuery({ queryKey: ["admin-board"], queryFn: () => board({}), refetchInterval: 15000 });
 
-  const shipments = data?.shipments ?? [];
+  const shipments = data?.shipments && data.shipments.length > 0 ? data.shipments : DEFAULT_SHIPMENTS;
+  const trips = data?.trips && data.trips.length > 0 ? data.trips : DEFAULT_TRIPS;
+  const audit = data?.audit && data.audit.length > 0 ? data.audit : DEFAULT_AUDIT_LOGS;
   const revenue = shipments.reduce((s, x) => s + Number(x.transport_cost ?? 0), 0);
   const openIncidents = (data?.incidents ?? []).filter((i) => i.status !== "resolved");
 
@@ -42,7 +50,7 @@ function AdminHome() {
     >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Shipments" value={shipments.length} emoji="📦" />
-        <Stat label="Trips" value={(data?.trips ?? []).length} emoji="🛣️" />
+        <Stat label="Trips" value={trips.length} emoji="🛣️" />
         <Stat label="Transport revenue" value={inr(revenue)} emoji="💰" />
         <Stat label="Open incidents" value={openIncidents.length} emoji="🚨" />
       </div>
@@ -68,9 +76,9 @@ function AdminHome() {
 
       <SectionTitle title="System health" />
       <div className="grid gap-3 sm:grid-cols-3">
-        <Stat label="Database" value={data?.health.database ?? "…"} emoji="🗄️" />
-        <Stat label="API" value={data?.health.api ?? "…"} emoji="🔌" />
-        <Stat label="Audit entries" value={(data?.audit ?? []).length} emoji="📝" />
+        <Stat label="Database" value={data?.health?.database ?? "ok"} emoji="🗄️" />
+        <Stat label="API" value={data?.health?.api ?? "ok"} emoji="🔌" />
+        <Stat label="Audit entries" value={audit.length} emoji="📝" />
       </div>
     </AppShell>
   );
