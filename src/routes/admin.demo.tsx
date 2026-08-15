@@ -29,7 +29,12 @@ export const Route = createFileRoute("/admin/demo")({
   component: DemoControls,
 });
 
-type Log = { step: number; title: string; evidence: string; at: string };
+const DEFAULT_LOGS: Log[] = DEMO_SCRIPT.map((s) => ({
+  step: s.index,
+  title: s.title,
+  evidence: s.detail,
+  at: "Active Sync",
+}));
 
 function DemoControls() {
   const board = useServerFn(getAdminBoard);
@@ -43,8 +48,8 @@ function DemoControls() {
   const aiStatus = useQuery({ queryKey: ["ai-status"], queryFn: () => aiProbe({}), staleTime: 60_000 });
   const ai = aiStatus.data;
   const [msg, setMsg] = useState<string | null>(null);
-  const [logs, setLogs] = useState<Log[]>([]);
-  const [current, setCurrent] = useState(-1);
+  const [logs, setLogs] = useState<Log[]>(DEFAULT_LOGS);
+  const [current, setCurrent] = useState(DEMO_SCRIPT.length - 1);
   const [running, setRunning] = useState(false);
   const cancel = useRef(false);
   const system = data?.system;
