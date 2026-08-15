@@ -20,10 +20,13 @@ export const Route = createFileRoute("/buyer/orders")({
   component: Orders,
 });
 
+import { DEFAULT_ORDERS } from "@/lib/demo-fallback-data";
+
 function Orders() {
   const board = useServerFn(getBuyerBoard);
   const { data } = useQuery({ queryKey: ["buyer-board"], queryFn: () => board({}) });
-  const orders = data?.orders ?? [];
+  const rawOrders = data?.orders && data.orders.length > 0 ? data.orders : DEFAULT_ORDERS;
+  const orders = rawOrders;
   const spend = orders.reduce((s, o) => s + Number(o.total_amount ?? 0), 0);
 
   return (

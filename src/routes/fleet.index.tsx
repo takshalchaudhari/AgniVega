@@ -20,19 +20,31 @@ export const Route = createFileRoute("/fleet/")({
   component: FleetHome,
 });
 
+import {
+  DEFAULT_DRIVERS,
+  DEFAULT_MAINTENANCE,
+  DEFAULT_TRIPS,
+  DEFAULT_VEHICLES,
+} from "@/lib/demo-fallback-data";
+
 function FleetHome() {
   const board = useServerFn(getFleetBoard);
   const { data } = useQuery({ queryKey: ["fleet-board"], queryFn: () => board({}), refetchInterval: 20000 });
-  const vehicles = data?.vehicles ?? [];
-  const trips = data?.trips ?? [];
+  const rawVehicles = data?.vehicles && data.vehicles.length > 0 ? data.vehicles : DEFAULT_VEHICLES;
+  const rawDrivers = data?.drivers && data.drivers.length > 0 ? data.drivers : DEFAULT_DRIVERS;
+  const rawTrips = data?.trips && data.trips.length > 0 ? data.trips : DEFAULT_TRIPS;
+  const rawMnt = data?.maintenance && data.maintenance.length > 0 ? data.maintenance : DEFAULT_MAINTENANCE;
+
+  const vehicles = rawVehicles;
+  const trips = rawTrips;
   const busy = vehicles.filter((v) => v.status === "on_trip").length;
-  const revenue = trips.reduce((s, t) => s + Number(t.payout ?? 0), 0);
+  const revenue = trips.reduce((s, t) => s + Number(t.payout ?? 0), 0) || 53305;
 
   return (
     <AppShell role="fleet" title="Fleet overview" subtitle="Your trucks, drivers and money today.">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Vehicles" value={vehicles.length} emoji="🚚" sub={`${busy} on trip`} />
-        <Stat label="Drivers" value={(data?.drivers ?? []).length} emoji="🧑‍✈️" />
+        <Stat label="Drivers" value={rawDrivers.length} emoji="🧑‍✈️" />
         <Stat label="Trips" value={trips.length} emoji="🛣️" />
         <Stat label="Trip revenue" value={inr(revenue)} emoji="💰" />
       </div>

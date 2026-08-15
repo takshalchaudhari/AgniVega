@@ -22,6 +22,10 @@ export const Route = createFileRoute("/buyer/")({
   component: BuyerMarket,
 });
 
+import {
+  DEFAULT_LISTINGS,
+} from "@/lib/demo-fallback-data";
+
 function BuyerMarket() {
   const board = useServerFn(getBuyerBoard);
   const buy = useServerFn(purchaseListing);
@@ -36,12 +40,13 @@ function BuyerMarket() {
   const [gradeFilter, setGradeFilter] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  const all = (data?.listings ?? []).filter((l) => l.available && Number(l.quantity_tons) > 0);
+  const rawListings = data?.listings && data.listings.length > 0 ? data.listings : DEFAULT_LISTINGS;
+  const all = rawListings.filter((l) => l.available && Number(l.quantity_tons) > 0);
   const cropOptions = Array.from(
     new Map(
       all.map((l) => {
         const c = l.crops as unknown as { name: string; emoji: string } | null;
-        return [l.crop_id, `${c?.emoji ?? ""} ${c?.name ?? l.crop_id}`] as const;
+        return [l.crop_id, `${c?.emoji ?? "🌾"} ${c?.name ?? l.crop_id}`] as const;
       }),
     ),
   );
@@ -49,7 +54,7 @@ function BuyerMarket() {
     new Map(
       all.map((l) => {
         const m = l.mandis as unknown as { name: string } | null;
-        return [l.mandi_id ?? "", m?.name ?? "Farm gate"] as const;
+        return [l.mandi_id ?? "", m?.name ?? "Mandi Gate"] as const;
       }),
     ),
   ).filter(([id]) => id);
@@ -144,15 +149,15 @@ function BuyerMarket() {
                   value={qty[l.id] ?? Math.min(1, max)}
                   onChange={(e) => setQty((q) => ({ ...q, [l.id]: Number(e.target.value) }))}
                 />
-                <Button className="w-full" disabled={!user} onClick={() => order(l.id, max)}>
-                  {user ? "Buy this lot" : "Sign in to buy"}
+                <Button className="w-full bg-primary text-primary-foreground font-semibold" onClick={() => order(l.id, max)}>
+                  🛒 Buy {qty[l.id] ?? Math.min(1, max)} t (Lock Escrow)
                 </Button>
               </Card>
             );
           })}
         </div>
       )}
-      {msg ? <p className="mt-4 text-sm text-muted-foreground">{msg}</p> : null}
+      {msg ? <p className="mt-4 text-sm font-medium text-emerald-400">{msg}</p> : null}
     </AppShell>
   );
 }

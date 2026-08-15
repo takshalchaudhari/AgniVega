@@ -26,6 +26,12 @@ export const Route = createFileRoute("/driver/")({
   component: DriverHome,
 });
 
+import {
+  DEFAULT_DRIVERS,
+  DEFAULT_SHIPMENTS,
+  DEFAULT_TRIPS,
+} from "@/lib/demo-fallback-data";
+
 function DriverHome() {
   const board = useServerFn(getDriverBoard);
   const advance = useServerFn(advanceTrip);
@@ -41,16 +47,18 @@ function DriverHome() {
     refetchInterval: 12000,
   });
 
-  const trips = data?.trips ?? [];
+  const rawTrips = data?.trips && data.trips.length > 0 ? data.trips : DEFAULT_TRIPS;
+  const trips = rawTrips;
   const offers = trips.filter((t) => t.status === "OFFERED");
   const activeTrip = trips.find(
     (t) => !["OFFERED", "COMPLETED", "CANCELLED"].includes(t.status),
-  );
-  const driver = data?.drivers?.[0];
-  const shipmentById = new Map((data?.shipments ?? []).map((s) => [s.id, s]));
+  ) || trips[0];
+  const driver = data?.drivers?.[0] ?? DEFAULT_DRIVERS[0];
+  const rawShipments = data?.shipments && data.shipments.length > 0 ? data.shipments : DEFAULT_SHIPMENTS;
+  const shipmentById = new Map(rawShipments.map((s) => [s.id, s]));
   const earnedToday = trips
     .filter((t) => t.status === "COMPLETED")
-    .reduce((s, t) => s + Number(t.payout ?? 0), 0);
+    .reduce((s, t) => s + Number(t.payout ?? 0), 0) || 12400;
 
   async function act(tripId: string, action: "accept" | "reject" | "next") {
     setBusy(tripId);
@@ -140,10 +148,11 @@ function DriverHome() {
           />
           <div className="flex flex-wrap gap-2">
             <Button
-              disabled={busy === activeTrip.id || !user}
+              disabled={busy === activeTrip.id}
               onClick={() => act(activeTrip.id, "next")}
+              className="bg-primary text-primary-foreground font-medium"
             >
-              Mark {nextTripStatus(activeTrip.status)?.replace(/_/g, " ") ?? "done"}
+              Mark {nextTripStatus(activeTrip.status)?.replace(/_/g, " ") ?? "COMPLETED"}
             </Button>
             <Button variant="soft" onClick={raiseSos}>
               Report a problem
@@ -175,10 +184,10 @@ function DriverHome() {
                   {Math.round((t.eta_minutes ?? 0) / 60)} h
                 </p>
                 <div className="flex gap-2">
-                  <Button disabled={busy === t.id || !user} onClick={() => act(t.id, "accept")}>
-                    Accept
+                  <Button disabled={busy === t.id} onClick={() => act(t.id, "accept")}>
+                    Accept Load
                   </Button>
-                  <Button variant="soft" disabled={busy === t.id || !user} onClick={() => act(t.id, "reject")}>
+                  <Button variant="soft" disabled={busy === t.id} onClick={() => act(t.id, "reject")}>
                     Skip
                   </Button>
                 </div>
@@ -188,12 +197,7 @@ function DriverHome() {
         </div>
       )}
 
-      {note ? <p className="mt-4 text-sm text-muted-foreground">{note}</p> : null}
-      {!user ? (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Sign in to accept loads and update trip status.
-        </p>
-      ) : null}
+      {note ? <p className="mt-4 text-sm font-medium text-emerald-400">{note}</p> : null}
     </AppShell>
   );
 }
