@@ -29,7 +29,19 @@ export const Route = createFileRoute("/farmer/new")({
 
 import { FALLBACK_CROPS, FALLBACK_MANDIS } from "@/lib/constants";
 
-type Plan = Awaited<ReturnType<typeof planShipment>>;
+type WeightUnit = "tonnes" | "quintals" | "kg";
+
+function toTons(val: number, u: WeightUnit): number {
+  if (u === "quintals") return Math.round((val / 10) * 1000) / 1000;
+  if (u === "kg") return Math.round((val / 1000) * 1000) / 1000;
+  return val;
+}
+
+function fromTons(t: number, toU: WeightUnit): number {
+  if (toU === "quintals") return Math.round(t * 10 * 100) / 100;
+  if (toU === "kg") return Math.round(t * 1000);
+  return t;
+}
 
 function NewShipment() {
   const navigate = useNavigate();
@@ -42,7 +54,8 @@ function NewShipment() {
   const [step, setStep] = useState(1);
   const [cropId, setCropId] = useState("");
   const [mandiId, setMandiId] = useState("");
-  const [tons, setTons] = useState(6);
+  const [unit, setUnit] = useState<WeightUnit>("tonnes");
+  const [amount, setAmount] = useState<number>(6);
   const [priority, setPriority] = useState("normal");
   const [pooled, setPooled] = useState(true);
   const [grade, setGrade] = useState("A");
@@ -54,6 +67,14 @@ function NewShipment() {
   const [rows, setRows] = useState<PlanRow[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const tons = toTons(amount, unit);
+
+  function handleUnitChange(newUnit: WeightUnit) {
+    const currentTons = toTons(amount, unit);
+    setUnit(newUnit);
+    setAmount(fromTons(currentTons, newUnit));
+  }
 
   const crops = reference?.crops && reference.crops.length > 0 ? reference.crops : FALLBACK_CROPS;
   const mandis = reference?.mandis && reference.mandis.length > 0 ? reference.mandis : FALLBACK_MANDIS;
@@ -165,15 +186,73 @@ function NewShipment() {
               ))}
             </select>
           </Field>
-          <Field label="Quantity (tonnes)" hint="One truck can carry up to 12 tonnes.">
-            <input
-              type="number"
-              min={0.5}
-              step={0.5}
-              className={inputClass}
-              value={tons}
-              onChange={(e) => setTons(Number(e.target.value))}
-            />
+          <Field
+            label="Harvest Quantity & Unit"
+            hint="Select your preferred unit (Tonnes, Quintals, or Kilograms). Truck load limit is 12 Tonnes."
+          >
+            <div className="space-y-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  type="number"
+                  min={unit === "kg" ? 50 : unit === "quintals" ? 1 : 0.1}
+                  step={unit === "kg" ? 50 : unit === "quintals" ? 1 : 0.1}
+                  className={`${inputClass} flex-1 text-base font-semibold`}
+                  value={amount || ""}
+                  onChange={(e) => setAmount(Math.max(0, Number(e.target.value)))}
+                />
+                <div className="flex rounded-lg border border-input bg-muted/40 p-1">
+                  {(
+                    [
+                      { id: "tonnes", label: "Tonnes (t)" },
+                      { id: "quintals", label: "Quintals (q)" },
+                      { id: "kg", label: "KG (kg)" },
+                    ] as const
+                  ).map((u) => (
+                    <button
+                      key={u.id}
+                      type="button"
+                      onClick={() => handleUnitChange(u.id)}
+                      className={`flex-1 rounded px-3 py-1.5 text-xs font-semibold transition sm:flex-none ${
+                        unit === u.id
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {u.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live Conversion Summary Badge */}
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-foreground">⚖️ Equivalent:</span>
+                  <span className="font-mono font-semibold text-primary">
+                    {tons.toFixed(2)} Tonnes
+                  </span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="font-mono text-muted-foreground">
+                    {(tons * 10).toFixed(1)} Quintals
+                  </span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="font-mono text-muted-foreground">
+                    {(tons * 1000).toLocaleString()} kg
+                  </span>
+                </div>
+                <div className="font-medium">
+                  {tons <= 12 ? (
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      ✓ Fits in 1 truck ({tons.toFixed(1)} / 12T)
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-amber-600 dark:text-amber-400">
+                      ⚠️ Needs {Math.ceil(tons / 12)} trucks (12T max rule)
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </Field>
           <Field label="Harvest date">
             <input
