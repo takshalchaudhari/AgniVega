@@ -34,11 +34,10 @@ function AdminHome() {
       title="Control tower"
       subtitle="Everything moving on the network right now."
       actions={
-        data?.system ? (
-          <Badge tone={data.system.mode === "demo" ? "warn" : "good"}>
-            {data.system.mode === "demo" ? "Demo mode" : "Real data mode"}
-          </Badge>
-        ) : null
+        <Badge tone="good">
+          <span className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          Live Network Active
+        </Badge>
       }
     >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

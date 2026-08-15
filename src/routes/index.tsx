@@ -68,14 +68,15 @@ function Landing() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <span className="text-sm font-semibold">🌾 Smart Krishi-Yatra</span>
         <div className="flex items-center gap-2">
-          {data?.system ? (
-            <Badge tone={data.system.mode === "demo" ? "warn" : "good"}>
-              {data.system.mode === "demo" ? "Demo mode" : "Real data mode"}
-            </Badge>
-          ) : null}
+          <Link
+            to="/admin/demo"
+            className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/20"
+          >
+            ⚡ 14-Stage Demo
+          </Link>
           <Link
             to="/auth"
-            className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+            className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90"
           >
             {user ? "Account" : "Sign in"}
           </Link>

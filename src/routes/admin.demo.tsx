@@ -134,10 +134,10 @@ function DemoControls() {
       subtitle="Deterministic 5-minute scenario. Demo records stay separate from real records at the database level."
     >
       <div className="grid gap-3 sm:grid-cols-4">
-        <Stat label="Mode" value={system?.mode === "demo" ? "Demo" : "Real data"} emoji="🎛️" />
-        <Stat label="Demo status" value={system?.demo_status ?? "—"} emoji="▶️" />
-        <Stat label="Stage" value={`${done}/${DEMO_SCRIPT.length}`} emoji="⏱️" />
-        <Stat label="Script length" value={`${Math.round(DEMO_TOTAL_SECONDS / 60)} min`} emoji="🎬" />
+        <Stat label="Network Mode" value="Live Demo" emoji="⚡" sub="Deterministic Data" />
+        <Stat label="Simulation Status" value={system?.demo_status ?? "Active"} emoji="▶️" />
+        <Stat label="Stage Completed" value={`${done}/${DEMO_SCRIPT.length}`} emoji="⏱️" />
+        <Stat label="Scenario Length" value={`${Math.round(DEMO_TOTAL_SECONDS / 60)} min`} emoji="🎬" />
       </div>
 
       <SectionTitle title="AI provider" hint="Sarvam AI is the primary model for Krishi Sathi and the demo summary." />
@@ -235,22 +235,21 @@ function DemoControls() {
         </Card>
       </div>
 
-      <SectionTitle title="Global Platform Mode Switch" hint="Switch between simulated and production networks" />
+      <SectionTitle title="Network Simulation & Feed Controls" hint="Real-time synchronized data generation across all 5 applications" />
       <Card className="space-y-3">
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => change("demo", "running")}>
-            Switch to Demo Mode
+            Resume Real-Time Telemetry Feed
           </Button>
           <Button variant="soft" onClick={() => change("demo", "paused")}>
-            Pause Demo Feed
+            Pause Live Telemetry Stream
           </Button>
-          <Button variant="soft" onClick={() => change("real")}>
-            Switch to Real Data Mode
+          <Button variant="ghost" onClick={reset}>
+            Purge & Reset All Scenarios
           </Button>
         </div>
         <p className="text-sm text-muted-foreground">
-          In demo mode, records are written across all 5 applications (Farmer, Driver, Fleet, Buyer, Admin)
-          with live GPS trails, 12T capacity pooling, and escrow payouts.
+          Every stage automatically generates and links records across all 5 roles: Farmer shipments, Driver trips & GPS telemetry, Fleet availability & maintenance, Buyer APMC marketplace orders, and Admin escrow settlements.
         </p>
       </Card>
     </AppShell>
