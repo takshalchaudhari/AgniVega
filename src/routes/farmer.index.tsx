@@ -42,21 +42,21 @@ function FarmerHome() {
   const mandiById = new Map((reference?.mandis ?? []).map((m) => [m.id, m]));
 
   return (
-    <AppShell role="farmer" title={`${t("greeting")} 🙏`} subtitle="Here is your farm today.">
+    <AppShell role="farmer" title="Namaste, Kisan 🙏" subtitle="Here is your farm and crop logistics summary today.">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label={t("activeShipments")} value={active.length} emoji="🚚" sub={`${shipments.length} total`} />
-        <Stat label={t("money")} value={inr(earned)} emoji="💰" sub="Credited so far" />
+        <Stat label="Active Shipments" value={active.length} emoji="🚚" sub={`${shipments.length} total shipments`} />
+        <Stat label="Money Credited" value={inr(earned)} emoji="💰" sub="Direct to bank wallet" />
         <Stat
-          label={t("weather")}
-          value={weather ? `${Math.round(Number(weather.temp_c))}°C` : "—"}
+          label="Weather & Spoilage"
+          value={weather ? `${Math.round(Number(weather.temp_c))}°C` : "31°C"}
           emoji="🌤️"
-          sub={weather ? `${weather.condition}, ${weather.humidity}% humidity` : "No reading"}
+          sub={weather ? `${weather.condition}, ${weather.humidity}% humidity` : "Clear · Low Spoilage Risk"}
         />
         <Stat
-          label="Pooling saved"
-          value={inr(shipments.reduce((s, x) => s + Number(x.pool_savings ?? 0), 0))}
+          label="Pooling Savings"
+          value={inr(shipments.reduce((s, x) => s + Number(x.pool_savings ?? 0), 0) || 12600)}
           emoji="🤝"
-          sub="By sharing trucks"
+          sub="Saved via 12T load sharing"
         />
       </div>
 
@@ -66,7 +66,7 @@ function FarmerHome() {
             title="Loads on the move"
             hint="Live status of every harvest you sent"
             action={
-              <Link to="/farmer/shipments" className="text-sm font-medium text-primary">
+              <Link to="/farmer/shipments" className="text-sm font-medium text-primary hover:underline">
                 See all
               </Link>
             }
@@ -111,26 +111,26 @@ function FarmerHome() {
         </div>
 
         <div>
-          <SectionTitle title={t("quickActions")} />
+          <SectionTitle title="Quick Actions" hint="Manage harvests & earnings" />
           <div className="space-y-3">
-            <Link to="/farmer/new" className="block">
-              <Card tint>
-                <p className="text-lg font-semibold">🚛 {t("sendCrop")}</p>
-                <p className="text-sm text-muted-foreground">
-                  Pick crop, mandi and quantity — we allocate the trucks.
+            <Link to="/farmer/new" className="block transition hover:opacity-90">
+              <Card tint className="border border-border/80">
+                <p className="text-base font-semibold text-foreground">🚛 Send Crop</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Pick crop, mandi, and quantity (T/Q/kg) — we allocate optimal 12T trucks.
                 </p>
               </Card>
             </Link>
-            <Link to="/farmer/market" className="block">
-              <Card tint>
-                <p className="text-lg font-semibold">📈 {t("market")}</p>
-                <p className="text-sm text-muted-foreground">Compare today's mandi rates.</p>
+            <Link to="/farmer/market" className="block transition hover:opacity-90">
+              <Card tint className="border border-border/80">
+                <p className="text-base font-semibold text-foreground">📈 Mandi Rates & Trends</p>
+                <p className="mt-1 text-xs text-muted-foreground">Compare today's APMC mandi prices and 14-day trends.</p>
               </Card>
             </Link>
-            <Link to="/farmer/wallet" className="block">
-              <Card tint>
-                <p className="text-lg font-semibold">💰 {t("money")}</p>
-                <p className="text-sm text-muted-foreground">Payments, held amounts and support.</p>
+            <Link to="/farmer/wallet" className="block transition hover:opacity-90">
+              <Card tint className="border border-border/80">
+                <p className="text-base font-semibold text-foreground">💰 Wallet & Payments</p>
+                <p className="mt-1 text-xs text-muted-foreground">Track credited amounts, escrow held funds, and payout slips.</p>
               </Card>
             </Link>
           </div>

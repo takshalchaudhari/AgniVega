@@ -154,29 +154,91 @@
 }
 
 /* ---- Dark theme (applies over every role skin; role accents are kept) ---- */
-.dark {
-  --background: oklch(0.19 0.02 250);
-  --foreground: oklch(0.96 0.01 250);
-  --surface: oklch(0.24 0.025 250);
-  --surface-tint: oklch(0.27 0.03 250);
-  --card: oklch(0.24 0.025 250);
-  --card-foreground: oklch(0.96 0.01 250);
-  --popover: oklch(0.24 0.025 250);
-  --popover-foreground: oklch(0.96 0.01 250);
-  --secondary: oklch(0.3 0.03 250);
-  --secondary-foreground: oklch(0.96 0.01 250);
-  --muted: oklch(0.29 0.025 250);
-  --muted-foreground: oklch(0.75 0.02 250);
-  --border: oklch(0.34 0.03 250);
-  --input: oklch(0.34 0.03 250);
-  --sidebar: oklch(0.22 0.02 250);
-  --sidebar-foreground: oklch(0.96 0.01 250);
-  --sidebar-border: oklch(0.34 0.03 250);
+.dark,
+[data-theme="dark"] {
+  --background: oklch(0.18 0.02 150);
+  --foreground: oklch(0.96 0.01 150);
+  --surface: oklch(0.22 0.025 150);
+  --surface-tint: oklch(0.26 0.03 150);
+  --card: oklch(0.22 0.025 150);
+  --card-foreground: oklch(0.96 0.01 150);
+  --popover: oklch(0.22 0.025 150);
+  --popover-foreground: oklch(0.96 0.01 150);
+  --secondary: oklch(0.28 0.03 150);
+  --secondary-foreground: oklch(0.96 0.01 150);
+  --muted: oklch(0.26 0.025 150);
+  --muted-foreground: oklch(0.72 0.02 150);
+  --border: oklch(0.32 0.03 150);
+  --input: oklch(0.32 0.03 150);
+  --sidebar: oklch(0.20 0.02 150);
+  --sidebar-foreground: oklch(0.96 0.01 150);
+  --sidebar-border: oklch(0.32 0.03 150);
 }
-.dark [data-role="farmer"] { --primary: oklch(0.68 0.15 150); --accent: oklch(0.8 0.16 72); }
-.dark [data-role="driver"] { --primary: oklch(0.7 0.14 245); --accent: oklch(0.82 0.16 85); }
-.dark [data-role="fleet"] { --primary: oklch(0.72 0.11 195); --accent: oklch(0.78 0.13 190); }
-.dark [data-role="buyer"] { --primary: oklch(0.72 0.15 330); --accent: oklch(0.8 0.15 40); }
+
+.dark [data-role="farmer"],
+[data-theme="dark"] [data-role="farmer"] {
+  --primary: oklch(0.68 0.15 150);
+  --accent: oklch(0.8 0.16 72);
+  --surface: oklch(0.22 0.025 150);
+  --surface-tint: oklch(0.26 0.035 150);
+  --card: oklch(0.22 0.025 150);
+  --card-foreground: oklch(0.96 0.01 150);
+  --muted: oklch(0.26 0.025 150);
+  --muted-foreground: oklch(0.72 0.02 150);
+  --border: oklch(0.32 0.03 150);
+}
+
+.dark [data-role="driver"],
+[data-theme="dark"] [data-role="driver"] {
+  --primary: oklch(0.7 0.14 245);
+  --accent: oklch(0.82 0.16 85);
+  --surface: oklch(0.22 0.025 245);
+  --surface-tint: oklch(0.26 0.035 245);
+  --card: oklch(0.22 0.025 245);
+  --card-foreground: oklch(0.96 0.01 245);
+  --muted: oklch(0.26 0.025 245);
+  --muted-foreground: oklch(0.72 0.02 245);
+  --border: oklch(0.32 0.03 245);
+}
+
+.dark [data-role="fleet"],
+[data-theme="dark"] [data-role="fleet"] {
+  --primary: oklch(0.72 0.11 195);
+  --accent: oklch(0.78 0.13 190);
+  --surface: oklch(0.22 0.025 195);
+  --surface-tint: oklch(0.26 0.035 195);
+  --card: oklch(0.22 0.025 195);
+  --card-foreground: oklch(0.96 0.01 195);
+  --muted: oklch(0.26 0.025 195);
+  --muted-foreground: oklch(0.72 0.02 195);
+  --border: oklch(0.32 0.03 195);
+}
+
+.dark [data-role="buyer"],
+[data-theme="dark"] [data-role="buyer"] {
+  --primary: oklch(0.72 0.15 330);
+  --accent: oklch(0.8 0.15 40);
+  --surface: oklch(0.22 0.025 330);
+  --surface-tint: oklch(0.26 0.035 330);
+  --card: oklch(0.22 0.025 330);
+  --card-foreground: oklch(0.96 0.01 330);
+  --muted: oklch(0.26 0.025 330);
+  --muted-foreground: oklch(0.72 0.02 330);
+  --border: oklch(0.32 0.03 330);
+}
+
+.dark [data-role="admin"],
+[data-theme="dark"] [data-role="admin"] {
+  --primary: oklch(0.72 0.16 165);
+  --accent: oklch(0.7 0.16 60);
+  --surface: oklch(0.22 0.025 250);
+  --surface-tint: oklch(0.26 0.03 250);
+  --card: oklch(0.22 0.025 250);
+  --card-foreground: oklch(0.96 0.01 250);
+  --muted: oklch(0.26 0.025 250);
+  --muted-foreground: oklch(0.72 0.02 250);
+  --border: oklch(0.32 0.03 250);
+}
 
 @layer base {
   * {
@@ -198,12 +260,15 @@
 
 @utility surface-card {
   background-color: var(--surface);
-  border: 1px solid var(--color-border);
+  color: var(--foreground);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl);
 }
 
 @utility tint-panel {
   background-color: var(--surface-tint);
+  color: var(--foreground);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl);
 }
 
@@ -212,3 +277,4 @@
   100% { box-shadow: 0 0 0 14px rgba(29, 78, 216, 0); }
 }
 .leaflet-container { background: var(--surface-tint); font: inherit; }
+
