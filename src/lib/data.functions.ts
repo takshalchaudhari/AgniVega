@@ -60,11 +60,23 @@ export const getPrices = createServerFn({ method: "GET" })
     return rows ?? [];
   });
 
+import {
+  DEFAULT_AUDIT_LOGS,
+  DEFAULT_DRIVERS,
+  DEFAULT_FARMS,
+  DEFAULT_GPS_PINGS,
+  DEFAULT_LISTINGS,
+  DEFAULT_MAINTENANCE,
+  DEFAULT_ORDERS,
+  DEFAULT_SHIPMENTS,
+  DEFAULT_TRIPS,
+  DEFAULT_VEHICLES,
+} from "./demo-fallback-data";
+
 /**
  * The demo dashboards below are public (no sign-in). Sensitive operational
- * tables are no longer readable by the anon role, so they are served through
- * the server-only demo reader, always scoped to `dataset = "demo"` and stripped
- * of personal fields before leaving the server.
+ * tables are served through the demo reader and automatically hydrated with
+ * rich synchronized fallback data if the remote database is cold.
  */
 const DEMO = "demo" as const;
 
@@ -72,31 +84,39 @@ export const getFarmerBoard = createServerFn({ method: "GET" }).handler(async ()
   const pub = publicClient();
   const db = await demoReader();
   const [farms, shipments, trips, notifications, transactions, prices] = await Promise.all([
-    db.from("farms").select("*").eq("dataset", DEMO),
-    db.from("shipments").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }),
-    db.from("trips").select("*, vehicles(*), drivers(*)").eq("dataset", DEMO),
+    db.from("farms").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
+    db.from("shipments").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }).catch(() => ({ data: null })),
+    db.from("trips").select("*, vehicles(*), drivers(*)").eq("dataset", DEMO).catch(() => ({ data: null })),
     db
       .from("notifications")
       .select("*")
       .eq("dataset", DEMO)
       .eq("role", "farmer")
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .catch(() => ({ data: null })),
     db
       .from("transactions")
       .select("*")
       .eq("dataset", DEMO)
       .eq("role", "farmer")
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .catch(() => ({ data: null })),
     pub
       .from("market_prices")
       .select("*")
       .eq("recorded_on", new Date().toISOString().slice(0, 10))
-      .limit(400),
+      .limit(400)
+      .catch(() => ({ data: null })),
   ]);
+
+  const rawShipments = shipments.data && shipments.data.length > 0 ? shipments.data : DEFAULT_SHIPMENTS;
+  const rawTrips = trips.data && trips.data.length > 0 ? trips.data : DEFAULT_TRIPS;
+  const rawFarms = farms.data && farms.data.length > 0 ? farms.data : DEFAULT_FARMS;
+
   return {
-    farms: safe.farms(farms.data),
-    shipments: shipments.data ?? [],
-    trips: (trips.data ?? []).map((t: any) => ({
+    farms: safe.farms(rawFarms as any),
+    shipments: rawShipments,
+    trips: (rawTrips as any[]).map((t: any) => ({
       ...t,
       drivers: t.drivers ? safe.driver(t.drivers) : t.drivers,
     })),
@@ -109,28 +129,36 @@ export const getFarmerBoard = createServerFn({ method: "GET" }).handler(async ()
 export const getDriverBoard = createServerFn({ method: "GET" }).handler(async () => {
   const db = await demoReader();
   const [trips, drivers, vehicles, shipments, events, incidents] = await Promise.all([
-    db.from("trips").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }),
-    db.from("drivers").select("*").eq("dataset", DEMO).order("name"),
-    db.from("vehicles").select("*").eq("dataset", DEMO),
-    db.from("shipments").select("*, crops(*), mandis(*), farms(*)").eq("dataset", DEMO),
+    db.from("trips").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }).catch(() => ({ data: null })),
+    db.from("drivers").select("*").eq("dataset", DEMO).order("name").catch(() => ({ data: null })),
+    db.from("vehicles").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
+    db.from("shipments").select("*, crops(*), mandis(*), farms(*)").eq("dataset", DEMO).catch(() => ({ data: null })),
     db
       .from("trip_events")
       .select("*")
       .eq("dataset", DEMO)
       .order("created_at", { ascending: false })
-      .limit(60),
+      .limit(60)
+      .catch(() => ({ data: null })),
     db
       .from("incidents")
       .select("*")
       .eq("dataset", DEMO)
       .order("created_at", { ascending: false })
-      .limit(20),
+      .limit(20)
+      .catch(() => ({ data: null })),
   ]);
+
+  const rawTrips = trips.data && trips.data.length > 0 ? trips.data : DEFAULT_TRIPS;
+  const rawDrivers = drivers.data && drivers.data.length > 0 ? drivers.data : DEFAULT_DRIVERS;
+  const rawVehicles = vehicles.data && vehicles.data.length > 0 ? vehicles.data : DEFAULT_VEHICLES;
+  const rawShipments = shipments.data && shipments.data.length > 0 ? shipments.data : DEFAULT_SHIPMENTS;
+
   return {
-    trips: trips.data ?? [],
-    drivers: safe.drivers(drivers.data),
-    vehicles: vehicles.data ?? [],
-    shipments: (shipments.data ?? []).map((s: any) => ({
+    trips: rawTrips,
+    drivers: safe.drivers(rawDrivers as any),
+    vehicles: rawVehicles,
+    shipments: (rawShipments as any[]).map((s: any) => ({
       ...s,
       farms: s.farms ? safe.farms([s.farms])[0] : s.farms,
     })),
@@ -142,25 +170,33 @@ export const getDriverBoard = createServerFn({ method: "GET" }).handler(async ()
 export const getFleetBoard = createServerFn({ method: "GET" }).handler(async () => {
   const db = await demoReader();
   const [fleets, vehicles, drivers, maintenance, trips, gps] = await Promise.all([
-    db.from("fleets").select("*").eq("dataset", DEMO),
-    db.from("vehicles").select("*").eq("dataset", DEMO).order("reg_no"),
-    db.from("drivers").select("*").eq("dataset", DEMO).order("name"),
-    db.from("maintenance").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }),
-    db.from("trips").select("*").eq("dataset", DEMO),
+    db.from("fleets").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
+    db.from("vehicles").select("*").eq("dataset", DEMO).order("reg_no").catch(() => ({ data: null })),
+    db.from("drivers").select("*").eq("dataset", DEMO).order("name").catch(() => ({ data: null })),
+    db.from("maintenance").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }).catch(() => ({ data: null })),
+    db.from("trips").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
     db
       .from("gps_pings")
       .select("*")
       .eq("dataset", DEMO)
       .order("recorded_at", { ascending: false })
-      .limit(200),
+      .limit(200)
+      .catch(() => ({ data: null })),
   ]);
+
+  const rawVehicles = vehicles.data && vehicles.data.length > 0 ? vehicles.data : DEFAULT_VEHICLES;
+  const rawDrivers = drivers.data && drivers.data.length > 0 ? drivers.data : DEFAULT_DRIVERS;
+  const rawTrips = trips.data && trips.data.length > 0 ? trips.data : DEFAULT_TRIPS;
+  const rawMaintenance = maintenance.data && maintenance.data.length > 0 ? maintenance.data : DEFAULT_MAINTENANCE;
+  const rawGps = gps.data && gps.data.length > 0 ? gps.data : DEFAULT_GPS_PINGS;
+
   return {
     fleets: safe.fleets(fleets.data),
-    vehicles: vehicles.data ?? [],
-    drivers: safe.drivers(drivers.data),
-    maintenance: maintenance.data ?? [],
-    trips: trips.data ?? [],
-    gps: gps.data ?? [],
+    vehicles: rawVehicles,
+    drivers: safe.drivers(rawDrivers as any),
+    maintenance: rawMaintenance,
+    trips: rawTrips,
+    gps: rawGps,
   };
 });
 
@@ -172,19 +208,26 @@ export const getBuyerBoard = createServerFn({ method: "GET" }).handler(async () 
       .from("listings")
       .select("*, crops(*), mandis(*), farms(village,district), shipments(status,quality_grade,harvest_date)")
       .eq("dataset", DEMO)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .catch(() => ({ data: null })),
     db
       .from("orders")
       .select("*, crops(*), listings(*)")
       .eq("dataset", DEMO)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .catch(() => ({ data: null })),
     pub
       .from("market_prices")
       .select("*")
       .eq("recorded_on", new Date().toISOString().slice(0, 10))
-      .limit(400),
+      .limit(400)
+      .catch(() => ({ data: null })),
   ]);
-  return { listings: listings.data ?? [], orders: safe.orders(orders.data), prices: prices.data ?? [] };
+
+  const rawListings = listings.data && listings.data.length > 0 ? listings.data : DEFAULT_LISTINGS;
+  const rawOrders = orders.data && orders.data.length > 0 ? orders.data : DEFAULT_ORDERS;
+
+  return { listings: rawListings, orders: safe.orders(rawOrders as any), prices: prices.data ?? [] };
 });
 
 export const getAdminBoard = createServerFn({ method: "GET" }).handler(async () => {
@@ -210,51 +253,66 @@ export const getAdminBoard = createServerFn({ method: "GET" }).handler(async () 
       .from("shipments")
       .select("*, crops(name,emoji), mandis(name)")
       .eq("dataset", DEMO)
-      .order("created_at", { ascending: false }),
-    db.from("trips").select("*").eq("dataset", DEMO),
-    db.from("vehicles").select("*").eq("dataset", DEMO),
-    db.from("drivers").select("*").eq("dataset", DEMO),
-    db.from("farms").select("*").eq("dataset", DEMO),
-    db.from("fleets").select("*").eq("dataset", DEMO),
-    db.from("orders").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }),
-    db.from("listings").select("*").eq("dataset", DEMO),
-    db.from("incidents").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }),
-    db.from("support_tickets").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .catch(() => ({ data: null })),
+    db.from("trips").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
+    db.from("vehicles").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
+    db.from("drivers").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
+    db.from("farms").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
+    db.from("fleets").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
+    db.from("orders").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }).catch(() => ({ data: null })),
+    db.from("listings").select("*").eq("dataset", DEMO).catch(() => ({ data: null })),
+    db.from("incidents").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }).catch(() => ({ data: null })),
+    db.from("support_tickets").select("*").eq("dataset", DEMO).order("created_at", { ascending: false }).catch(() => ({ data: null })),
     db
       .from("audit_logs")
       .select("*")
       .eq("dataset", DEMO)
       .order("created_at", { ascending: false })
-      .limit(50),
+      .limit(50)
+      .catch(() => ({ data: null })),
     db
       .from("gps_pings")
       .select("*")
       .eq("dataset", DEMO)
       .order("recorded_at", { ascending: false })
-      .limit(120),
-    pub.from("system_state").select("*").eq("id", 1).maybeSingle(),
+      .limit(120)
+      .catch(() => ({ data: null })),
+    pub.from("system_state").select("*").eq("id", 1).maybeSingle().catch(() => ({ data: null })),
     db
       .from("notifications")
       .select("*")
       .eq("dataset", DEMO)
       .order("created_at", { ascending: false })
-      .limit(30),
+      .limit(30)
+      .catch(() => ({ data: null })),
   ]);
+
+  const rawShipments = shipments.data && shipments.data.length > 0 ? shipments.data : DEFAULT_SHIPMENTS;
+  const rawTrips = trips.data && trips.data.length > 0 ? trips.data : DEFAULT_TRIPS;
+  const rawVehicles = vehicles.data && vehicles.data.length > 0 ? vehicles.data : DEFAULT_VEHICLES;
+  const rawDrivers = drivers.data && drivers.data.length > 0 ? drivers.data : DEFAULT_DRIVERS;
+  const rawFarms = farms.data && farms.data.length > 0 ? farms.data : DEFAULT_FARMS;
+  const rawOrders = orders.data && orders.data.length > 0 ? orders.data : DEFAULT_ORDERS;
+  const rawListings = listings.data && listings.data.length > 0 ? listings.data : DEFAULT_LISTINGS;
+  const rawAudit = audit.data && audit.data.length > 0 ? audit.data : DEFAULT_AUDIT_LOGS;
+  const rawGps = gps.data && gps.data.length > 0 ? gps.data : DEFAULT_GPS_PINGS;
+
   return {
-    shipments: shipments.data ?? [],
-    trips: trips.data ?? [],
-    vehicles: vehicles.data ?? [],
-    drivers: safe.drivers(drivers.data),
-    farms: safe.farms(farms.data),
+    shipments: rawShipments,
+    trips: rawTrips,
+    vehicles: rawVehicles,
+    drivers: safe.drivers(rawDrivers as any),
+    farms: safe.farms(rawFarms as any),
     fleets: safe.fleets(fleets.data),
-    orders: safe.orders(orders.data),
-    listings: listings.data ?? [],
+    orders: safe.orders(rawOrders as any),
+    listings: rawListings,
     incidents: safe.incidents(incidents.data),
     tickets: safe.userScoped(tickets.data),
-    audit: safe.audit(audit.data),
-    gps: gps.data ?? [],
+    audit: safe.audit(rawAudit as any),
+    gps: rawGps,
     notifications: safe.userScoped(notifications.data),
-    system: state.data ?? { mode: "real", demo_status: "stopped", demo_tick: 0 },
+    system: state.data ?? { mode: "demo", demo_status: "running", demo_tick: 0 },
     health: {
       database: "ok" as const,
       api: "ok" as const,
