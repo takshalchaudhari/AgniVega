@@ -57,16 +57,21 @@ export function AppShell({
             {theme === "dark" ? "☀️" : "🌙"}
           </button>
           {user ? (
-            <button
-              onClick={() => signOut()}
-              className="hidden h-9 rounded-lg border border-input px-3 text-xs font-medium sm:block"
-            >
-              {t("Sign out")}
-            </button>
+            <div className="flex items-center gap-1.5">
+              <span className="hidden rounded-lg bg-primary/10 px-2 py-1.5 text-xs font-semibold text-primary sm:inline-block">
+                👤 {user.user_metadata?.full_name || user.email?.split("@")[0] || "User"}
+              </span>
+              <button
+                onClick={() => signOut()}
+                className="h-9 rounded-lg border border-input px-2.5 text-xs font-medium hover:bg-muted"
+              >
+                {t("Sign out")}
+              </button>
+            </div>
           ) : (
             <Link
               to="/auth"
-              className="hidden h-9 items-center rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground sm:inline-flex"
+              className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:opacity-90"
             >
               {t("Sign in")}
             </Link>

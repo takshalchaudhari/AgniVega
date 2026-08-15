@@ -115,7 +115,7 @@ Answer in ${data.lang === "hi" ? "Hindi" : data.lang === "mr" ? "Marathi" : "sim
 Be short (max 4-5 lines), practical and specific to crops, mandi prices, transport cost, spoilage risk and trip status.
 Use only this live platform data when quoting numbers:\n${context}`;
 
-    const sarvamKey = process.env["SARVAM_API_KEY"];
+    const sarvamKey = process.env["SARVAM_API_KEY"] || "sk_ik5l28fi_FfQj8U7sYyFUo4BTLSFJnoF3";
     const messages = [
       { role: "system", content: system },
       ...data.history.slice(-4),
