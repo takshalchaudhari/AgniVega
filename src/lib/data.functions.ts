@@ -13,25 +13,39 @@ import {
   vehicleCost,
 } from "./logistics";
 
+import { FALLBACK_CROPS, FALLBACK_MANDIS } from "./constants";
+
 /* ---------------- reads ---------------- */
 
 export const getReference = createServerFn({ method: "GET" }).handler(async () => {
-  const db = publicClient();
-  const [crops, mandis, weather, state] = await Promise.all([
-    db.from("crops").select("*").order("name"),
-    db.from("mandis").select("*").order("name"),
-    db.from("weather_snapshots").select("*").eq("recorded_on", new Date().toISOString().slice(0, 10)),
-    db.from("system_state").select("*").eq("id", 1).maybeSingle(),
-  ]);
-  const weatherRows = weather.data?.length
-    ? weather.data
-    : (await db.from("weather_snapshots").select("*")).data ?? [];
-  return {
-    crops: crops.data ?? [],
-    mandis: mandis.data ?? [],
-    weather: weatherRows,
-    system: state.data ?? { mode: "real", demo_status: "stopped", demo_tick: 0 },
-  };
+  try {
+    const db = publicClient();
+    const [crops, mandis, weather, state] = await Promise.all([
+      db.from("crops").select("*").order("name"),
+      db.from("mandis").select("*").order("name"),
+      db.from("weather_snapshots").select("*").eq("recorded_on", new Date().toISOString().slice(0, 10)),
+      db.from("system_state").select("*").eq("id", 1).maybeSingle(),
+    ]);
+    const cropRows = crops.data && crops.data.length > 0 ? crops.data : FALLBACK_CROPS;
+    const mandiRows = mandis.data && mandis.data.length > 0 ? mandis.data : FALLBACK_MANDIS;
+    const weatherRows = weather.data?.length
+      ? weather.data
+      : (await db.from("weather_snapshots").select("*")).data ?? [];
+    return {
+      crops: cropRows,
+      mandis: mandiRows,
+      weather: weatherRows,
+      system: state.data ?? { mode: "real", demo_status: "stopped", demo_tick: 0 },
+    };
+  } catch (err) {
+    console.error("getReference fallback activated:", err);
+    return {
+      crops: FALLBACK_CROPS,
+      mandis: FALLBACK_MANDIS,
+      weather: [],
+      system: { mode: "real", demo_status: "stopped", demo_tick: 0 },
+    };
+  }
 });
 
 export const getPrices = createServerFn({ method: "GET" })

@@ -24,21 +24,24 @@ export const Route = createFileRoute("/farmer/market")({
   component: Market,
 });
 
+import { FALLBACK_CROPS, FALLBACK_MANDIS } from "@/lib/constants";
+
 function Market() {
   const ref = useServerFn(getReference);
   const priceFn = useServerFn(getPrices);
   const { data: reference } = useQuery({ queryKey: ["reference"], queryFn: () => ref({}) });
   const [cropId, setCropId] = useState("");
 
-  const crops = reference?.crops ?? [];
-  const selected = cropId || crops[0]?.id || "";
+  const crops = reference?.crops && reference.crops.length > 0 ? reference.crops : FALLBACK_CROPS;
+  const mandis = reference?.mandis && reference.mandis.length > 0 ? reference.mandis : FALLBACK_MANDIS;
+  const selected = cropId || crops[0]?.id || "onion";
   const { data: prices } = useQuery({
     queryKey: ["prices", selected],
     queryFn: () => priceFn({ data: { cropId: selected } }),
     enabled: Boolean(selected),
   });
 
-  const mandiById = new Map((reference?.mandis ?? []).map((m) => [m.id, m]));
+  const mandiById = new Map(mandis.map((m) => [m.id, m]));
   const latestDate = prices?.[0]?.recorded_on;
   const today = (prices ?? []).filter((p) => p.recorded_on === latestDate);
   const best = [...today].sort(

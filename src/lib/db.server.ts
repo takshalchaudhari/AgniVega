@@ -1,10 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
+const DEFAULT_SUPABASE_URL = "https://vagpytfjcbrpufdveklg.supabase.co";
+const DEFAULT_SUPABASE_KEY = "sb_publishable_JUF_s2bc-OFZTVodDubiwg_nKXdI2VT";
+
 /** Publishable-key client for server-side reads of public + simulated data. */
 export function publicClient() {
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  const url = process.env["SUPABASE_URL"]!;
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"] || process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || DEFAULT_SUPABASE_KEY;
+  const url = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"] || DEFAULT_SUPABASE_URL;
   return createClient<Database>(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {

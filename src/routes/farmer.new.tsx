@@ -27,6 +27,8 @@ export const Route = createFileRoute("/farmer/new")({
   component: NewShipment,
 });
 
+import { FALLBACK_CROPS, FALLBACK_MANDIS } from "@/lib/constants";
+
 type Plan = Awaited<ReturnType<typeof planShipment>>;
 
 function NewShipment() {
@@ -53,8 +55,8 @@ function NewShipment() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const crops = reference?.crops ?? [];
-  const mandis = reference?.mandis ?? [];
+  const crops = reference?.crops && reference.crops.length > 0 ? reference.crops : FALLBACK_CROPS;
+  const mandis = reference?.mandis && reference.mandis.length > 0 ? reference.mandis : FALLBACK_MANDIS;
 
   async function getQuote() {
     setError(null);
